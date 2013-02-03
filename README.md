@@ -185,17 +185,231 @@ Here is the full code of index.html file:
 
 Full source code is under [ga-backbone/collections](https://github.com/azat-co/ga-backbone/tree/master/collections).
 
-Follow all the steps from **Setting up Backbone.js App From Scratch** exercise. 
+Follow all the steps from **Setting up Backbone.js App From Scratch** exercise or download app from [ga-backbone/hello-world](https://github.com/azat-co/ga-backbone/tree/master/hello-world).
+
+We should add some data to play around and to hydrate our views so add this right after **script** tag and before other code:
+
+```json
+   var appleData = [
+      {
+        name: "fuji",
+        url: 'img/fuji.jpg'
+      },
+      {
+        name: "gala",
+        url: 'img/gala.jpg'
+      }      
+    ];
+```
+
+This will be our apple *database* or REST API endpoint substitute to provide us with names and URLs to the images.
+
+Now to make UX little bit better we can add a new route to the routes object in Backbone Route:
+	
+```javascript
+    ...  
+	  routes: {
+      "": "home",
+      "apples/:appleName": "loadApple"
+    },
+    ...
+```
+This will allow users to go to index.html#apples/SOMENAME and expect to see and information about an apple fetching and rendering of which we will implement in the **loadApple** function in the Backbone Router definition:
+
+```javascript
+      loadApple: function(appleName){
+        this.appleView.render(appleName);
+      }
+```
+Have you noticed *appleName* variable? It's exactly the same name as in route. This is how we can access query string parameters in Backbone.
+
+Now we'll need to refactor some more code to create Backbone Collection and populate it with data in our **appleData** variable, and to pass collection to **homeView** and **appleView**, and we do it all in Router constructor method **initialize**:
+
+```javascript
+      initialize: function(){
+        var apples = new Apples();
+        apples.reset(appleData);
+        this.homeView = new homeView({collection: apples});
+        this.appleView = new appleView({collection: apples});
+      },
+```
+
+At this point we're pretty much done with the Router class and it should look like this:
+
+```javascript
+    var router = Backbone.Router.extend({
+      routes: {
+        "": "home",
+        "apples/:appleName": "loadApple"
+      },
+      initialize: function(){
+        var apples = new Apples();
+        apples.reset(appleData);
+        this.homeView = new homeView({collection: apples});
+        this.appleView = new appleView({collection: apples});
+      },
+      home: function(){        
+        this.homeView.render();
+      },
+      loadApple: function(appleName){
+        this.appleView.render(appleName);
+      }
+    });
+```
+
+Let's modify our **homeView** a bit to see the whole *database*:
+
+```javascript
+    var homeView = Backbone.View.extend({
+      el: 'body',
+      template: _.template('Apple data: <%= data %>'),
+      render: function(){
+        this.$el.html(this.template({data: JSON.stringify(this.collection.models)}));
+      }
+    });
+```
+
+For now we out put JSON object which is not user-friendly at all, the best thing to do would be to use subviews. 
+ 
+Apple Backbone Collections is clean and simple:
+
+```javascript
+    var Apples = Backbone.Collection.extend({
+
+    });
+```
+
+Apple view is not any more complex, it has only two properties, template and render. In template we want to display **figure**, **img** and **figcaption** tags with specific values, Underscore template engine is handy at this:
+
+```javascript
+    var appleView = Backbone.View.extend({
+      template: _.template(
+						'<figure>\
+               <img src="<%= attributes.url%>"/>\
+               <figcaption><%= attributes.name %></figcaption>\
+             </figure>'),
+   ...
+    });
+```
+To make JavaScript string, which has HTML tags in it, more readable we can use backslash line breaker escape ("\") symbol or close strings and concatenate them with plus sign ("+").
+
+```javascript
+    var appleView = Backbone.View.extend({
+      template: _.template(
+          '<figure>'+
+            +'<img src="<%= attributes.url%>"/>'+
+            +'<figcaption><%= attributes.name %></figcaption>'+
+          +'</figure>'),
+   ...
+```
+
+Please note the '<%=' and '%>' symbols, that instructions for Undescore.js to print values in properties **url** and **name** of **attributes** object.
+
+Finally, we adding render function to the **appleView** class:
+
+```javascript
+      render: function(appleName){
+        var appleModel = this.collection.where({name:appleName})[0];
+        var appleHtml = this.template(appleModel);
+        $('body').html(appleHtml);
+      }
+```
+
+Right now **render** function is responsible for both loading the data and rendering it, later it will be a good idea to separate these two functionalities into different methods.
+
+The whole app, which is in ga-backbone/collection/index.html, looks like this:
+
+```html
+<!DOCTYPE>
+<html>
+<head>
+  <script src="jquery.js"></script>
+  <script src="underscore.js"></script>
+  <script src="backbone.js"></script>
+
+  <script>
+   var appleData = [
+      {
+        name: "fuji",
+        url: 'img/fuji.jpg'
+      },
+      {
+        name: "gala",
+        url: 'img/gala.jpg'
+      }      
+    ];
+    var app;
+    var router = Backbone.Router.extend({
+      routes: {
+        "": "home",
+        "apples/:appleName": "loadApple"
+      },
+      initialize: function(){
+        var apples = new Apples();
+        apples.reset(appleData);
+        this.homeView = new homeView({collection: apples});
+        this.appleView = new appleView({collection: apples});
+      },
+      home: function(){        
+        this.homeView.render();
+      },
+      loadApple: function(appleName){
+        this.appleView.render(appleName);
+      }
+    });
+
+    var homeView = Backbone.View.extend({
+      el: 'body',
+      template: _.template('Apple data: <%= data %>'),
+      render: function(){
+        this.$el.html(this.template({data: JSON.stringify(this.collection.models)}));
+      }
+      //TODO subviews
+    });
+
+    var Apples = Backbone.Collection.extend({
+
+    });
+    var appleView = Backbone.View.extend({
+      template: _.template('<figure>\
+                              <img src="<%= attributes.url%>"/>\
+                              <figcaption><%= attributes.name %></figcaption>\
+                            </figure>'),
+
+      //re-write with load apple and event binding
+
+      render: function(appleName){
+
+        var appleModel = this.collection.where({name:appleName})[0];
+        var appleHtml = this.template(appleModel);
+        $('body').html(appleHtml);
+      }
+    });
+    $(document).ready(function(){
+      app = new router;
+      Backbone.history.start();      
+    })
 
 
-Load local HTTP server, e.g., [MAMP](http://www.mamp.info/en/index.html).
+  </script>
+</head>
+<body>
+  <div></div>
+</body>
+</html>
+```
 
 
-## Using View and Subviews
+## Event Binding
 
-TODO
+TODO: use load apple function and even listeners
+
+## Views and Subviews
+
+TODO: use subview to render list of apples
 
 ## ADM and Super Simple Backbone Starter Kit
 
+Load local HTTP server, e.g., [MAMP](http://www.mamp.info/en/index.html), and open you browser at the folder in which you downloaded/cloned SSBSK.
 
 
