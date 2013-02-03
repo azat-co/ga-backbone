@@ -1,0 +1,75 @@
+<!DOCTYPE>
+<html>
+<head>
+  <script src="jquery.js"></script>
+  <script src="underscore.js"></script>
+  <script src="backbone.js"></script>
+
+  <script>
+  
+    var app;
+    var router = Backbone.Router.extend({
+      routes: {
+        "": "home",
+        "user/:username": "loadUser"
+      },
+      initialize: function(){
+        
+      },
+      home: function(){
+        this.homeView = new homeView;
+        this.homeView.render();
+      },
+      loadUser: function(username){
+        this.userView = new userView;
+        this.userView.load(username);
+      }
+    });
+
+    var homeView = Backbone.View.extend({
+      el: 'body',
+      template: _.template('Hello World'),
+      render: function(){
+        this.$el.html(this.template({}));
+      }
+    });
+
+    var userView = Backbone.View.extend({
+      el: 'div',
+      template: _.template('User: @<%= username %>\
+                            <h2>Random Tweet:</h2>\
+                            <p><%= text %></p>\
+                            '),
+
+      initialize: function(){
+        this.collection= new  tweetList();
+        this.collection.on('reset', this.render, this);
+      },
+      load: function(username){
+        this.username=username;
+        this.collection.fetch();
+      },
+      render: function(){
+        this.$el.html(this.template({username:this.username, text: this.collection.models[Math.round(Math.random()*20)].attributes.text}))
+      }
+    });
+
+    var tweetList = Backbone.Collection.extend({
+      url: 'user_timeline.json'
+      
+    });
+
+    var app;
+    $(document).ready(function(){
+      app = new router;
+      Backbone.history.start();      
+    })
+
+
+  </script>
+</head>
+<body>
+  <a href="#user/azat_co">@azat_co</a>
+  <div></div>
+</body>
+</html>
