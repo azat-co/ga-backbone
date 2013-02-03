@@ -6,7 +6,9 @@ Instructions for General Assembly class *Introduction to Backbone.js for Front-e
 
 <http://www.eventbrite.com/event/5326760484/estw>
 
-## Set up Backbone.js App From Scratch
+## Setting up Backbone.js App From Scratch
+
+Full source code is under [ga-backbone/hello-world](https://github.com/azat-co/ga-backbone/tree/master/hello-world).
 
 Download required libraries:
 
@@ -179,11 +181,21 @@ Here is the full code of index.html file:
 </html>
 ```
 
-## Collections
+## Working with Collections
 
-## ADM and Super Simple Backbone Starter Kit
+Full source code is under [ga-backbone/collections](https://github.com/azat-co/ga-backbone/tree/master/collections).
+
+Follow all the steps from **Setting up Backbone.js App From Scratch** exercise. 
+
+
+Load local HTTP server, e.g., [MAMP](http://www.mamp.info/en/index.html).
+
 
 ## Using View and Subviews
 
 TODO
+
+## ADM and Super Simple Backbone Starter Kit
+
+
 
