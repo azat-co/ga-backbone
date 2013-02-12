@@ -8,7 +8,9 @@ Instructions for General Assembly class *Introduction to Backbone.js for Front-e
 
 ## Setting up Backbone.js App From Scratch
 
-Full source code is under [ga-backbone/hello-world](https://github.com/azat-co/ga-backbone/tree/master/hello-world).
+We're going to build typical starter  "Hello World" application using Backbone.js and MVC architecture. I know it might sound like an overkill in the beginning, but as we go along with each step we'll add more and more complexity, things like Models, Subviews and Collections. 
+
+A full source code for "Hello World" app is available at GitHub under [github.com/azat-co/ga-backbone/hello-world](https://github.com/azat-co/ga-backbone/tree/master/hello-world).
 
 Download required libraries:
 
@@ -18,7 +20,7 @@ Download required libraries:
 
 * [Backbone development source file](http://backbonejs.org/backbone.js)
 
-index.html:
+And include them in the index.html file like this:
 
 ```html
 <!DOCTYPE>
@@ -46,7 +48,7 @@ Let's define a simple Router inside of `<script>` tags:
 ...
 ```
 
-Then set up special `routes` property in side of extend call:
+Then set up special `routes` property inside of an **extend** call:
 
 ```javascript
     var router = Backbone.Router.extend({
@@ -65,7 +67,7 @@ Routes need to be in the following format: `'path/:param':'action' with will res
     });
 ```
 
-This is good but now we need to add home function:
+This is good, but now we need to add a **home** function:
 
 ```javascript
     var router = Backbone.Router.extend({
@@ -78,14 +80,14 @@ This is good but now we need to add home function:
     });
 ```
 
-We'll come back to later to add logic to create and render View, before we do it we should define our homeView:
+We'll come back to the **home** function later to add more logic for creating and rendering of a View. Right now we should define our **homeView**:
 
 ```javascript
     var homeView = Backbone.View.extend({
     });
 ```
 
-Looks similar, right? Backbone uses similar approach with extend and JSON structure. There are a multiple way to proceed from now on but the best practice is to use **el** and ***template*** properties:
+Looks familiar, right? Backbone.js uses similar syntax for for all of its components: extend function and a JSON object as a parameter to it. There are a multiple ways to proceed from now on, but the best practice is to use **el** and ***template*** properties which are "magical", i.e., special in Backbone.js:
 
 ```javascript
     var homeView = Backbone.View.extend({
@@ -93,7 +95,10 @@ Looks similar, right? Backbone uses similar approach with extend and JSON struct
       template: _.template('Hello World')   
     });
 ```
-el is just a sting holding jQuery selector (you can use class with '.' and id with '#'). Template property is assigned Underscore function **template** with just a plain text 'Hello World'. To render all this we can use `this.$el` which is a compiled jQuery object referencing element in **el** property and jQuery `.html()` function to replace html with `this.template()` value, here is how it looks:
+
+Property **el** is just a string that holds jQuery selector (you can use class name with '.' and id name with '#'). Template property has been assigned an Underscore function **template** with just a plain text 'Hello World'. 
+
+To render our **homeView** we use `this.$el` which is a compiled jQuery object referencing element in an **el** property, and jQuery `.html()` function to replace HTML with `this.template()` value. Here is how the full code for our Backbone.js view looks like:
 
 ```javascript
     var homeView = Backbone.View.extend({
@@ -105,7 +110,7 @@ el is just a sting holding jQuery selector (you can use class with '.' and id wi
     });
 ```
 
-Now if we go back to router we can add these two lines to home function:
+Now, if we go back to the **router** we can add these two lines to the **home** function:
 
 ```javascript
     var router = Backbone.Router.extend({
@@ -121,8 +126,9 @@ Now if we go back to router we can add these two lines to home function:
       }
     });
 ```
+The first line will create homeView object and assign it to homeView property of the router. The second line will call **render** method in **homeView** object triggering 'Hello World' output.
 
-Finally to start a Backbone app we call `new Router` inside of a document ready wrap to make sure DOM is loaded:
+Finally, to start a Backbone app we call `new Router` inside of a document ready wrap to make sure that file's DOM is fully loaded:
 
 ```javascript
 		var app;
@@ -180,6 +186,8 @@ Here is the full code of index.html file:
 </body>
 </html>
 ```
+
+Open **index.html** in the browser to see if it works, i.e., 'Hello World' message should be on the page.
 
 ## Working with Collections
 
