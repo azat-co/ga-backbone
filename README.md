@@ -131,7 +131,7 @@ The first line will create homeView object and assign it to homeView property of
 Finally, to start a Backbone app we call `new Router` inside of a document ready wrap to make sure that file's DOM is fully loaded:
 
 ```javascript
-		var app;
+  var app;
     $(document).ready(function(){
       app = new router;
       Backbone.history.start();      
@@ -140,7 +140,8 @@ Finally, to start a Backbone app we call `new Router` inside of a document ready
 
 Here is the full code of index.html file:
 
-```javascript
+```html
+
 <!DOCTYPE>
 <html>
 <head>
@@ -185,6 +186,7 @@ Here is the full code of index.html file:
   <div></div>
 </body>
 </html>
+
 ```
 
 Open **index.html** in the browser to see if it works, i.e., 'Hello World' message should be on the page.
@@ -197,7 +199,7 @@ Follow all the steps from **Setting up Backbone.js App From Scratch** exercise o
 
 We should add some data to play around and to hydrate our views so add this right after **script** tag and before other code:
 
-```json
+```javascript
    var appleData = [
       {
         name: "fuji",
@@ -216,7 +218,7 @@ Now to make UX little bit better we can add a new route to the routes object in 
 	
 ```javascript
     ...  
-	  routes: {
+    routes: {
       "": "home",
       "apples/:appleName": "loadApple"
     },
