@@ -409,8 +409,24 @@ The whole app, which is in ga-backbone/collection/index.html, looks like this:
 </html>
 ```
 
+Open collections/index.html file in your browser. You should see data from our "database", i.e., `Apple data: [{"name":"fuji","url":"img/fuji.jpg"},{"name":"gala","url":"img/gala.jpg"}]`. It's not very user friendly but will do for now (we'll make it prettier in the section on subviews).
+
+Now, let' go to `collections/index.html#apples/fuji` or `collections/index.html#apples/gala` in your browser. We expect to see on image with a caption. It's a detailed view of an item which in this case is an apple. Nice work!
 
 ## Event Binding
+
+In real life getting data does not happen instantaneously so we need to refactor our code.
+
+Without Backbone.js we'll have to pass a function that renders as a callback to data loading function to make sure rendering function is not executed before we have actual data to display. 
+
+It's good that we have event binding in Backbone. Therefore, when a user goes to detailed view (`apples/:id`) we only call function that loads the data. Then with the proper even listeners our view will automagically update itself when there is a new data (or a data change, Backbone supported multiple and even custom events).
+
+Let's change what we call in the router:
+
+```javascript
+      loadApple: function(appleName){
+        this.appleView.render(appleName);
+      }
 
 TODO: use load apple function and even listeners
 
