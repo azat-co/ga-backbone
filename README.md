@@ -427,6 +427,7 @@ Let's change what we call in the router:
       loadApple: function(appleName){
         this.appleView.render(appleName);
       }
+```
 
 TODO: use load apple function and even listeners
 
