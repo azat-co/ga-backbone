@@ -52,8 +52,8 @@
     var appleView = Backbone.View.extend({
       initialize: function(){
         this.model = new (Backbone.Model.extend({}));
-        this.model.bind('change', this.render, this);
-        this.bind('spinner',this.showSpinner, this);
+        this.model.on('change', this.render, this);
+        this.on('spinner',this.showSpinner, this);
       },
       template: _.template('<figure>\
                               <img src="<%= attributes.url%>"/>\
@@ -88,7 +88,6 @@
   </script>
 </head>
 <body>
-  <a href="#apples/fuji">fuji</a>
   <div></div>
 </body>
 </html>

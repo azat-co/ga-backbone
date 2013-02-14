@@ -1,10 +1,9 @@
 # Introduction to Backbone
 
-Instructions for General Assembly class *Introduction to Backbone.js for Front-end Developers and Designers*.
+Working material for a new chapter of [Rapid Prototyping with JS](leanpub.com/rapid-prototyping-with-js/): "Backbone.js in details".
 
-<http://generalassemb.ly/education/582/introduction-to-backbone-js-for-front-end-developers-and-designers/955>
+Originally developed as instructions for General Assembly class *Introduction to Backbone.js for Front-end Developers and Designers*: <http://generalassemb.ly/education/582/introduction-to-backbone-js-for-front-end-developers-and-designers/955> and <http://www.eventbrite.com/event/5326760484/estw>.
 
-<http://www.eventbrite.com/event/5326760484/estw>
 
 ## Setting up Backbone.js App From Scratch
 
@@ -292,25 +291,25 @@ Apple Backbone Collections is clean and simple:
 Apple view is not any more complex, it has only two properties, template and render. In template we want to display **figure**, **img** and **figcaption** tags with specific values, Underscore template engine is handy at this:
 
 ```javascript
-    var appleView = Backbone.View.extend({
-      template: _.template(
-						'<figure>\
-               <img src="<%= attributes.url%>"/>\
-               <figcaption><%= attributes.name %></figcaption>\
-             </figure>'),
-   ...
-    });
+  var appleView = Backbone.View.extend({
+    template: _.template(
+  				'<figure>\
+             <img src="<%= attributes.url%>"/>\
+             <figcaption><%= attributes.name %></figcaption>\
+           </figure>'),
+  ...
+  });
 ```
 To make JavaScript string, which has HTML tags in it, more readable we can use backslash line breaker escape ("\") symbol or close strings and concatenate them with plus sign ("+").
 
 ```javascript
-    var appleView = Backbone.View.extend({
-      template: _.template(
-          '<figure>'+
-            +'<img src="<%= attributes.url%>"/>'+
-            +'<figcaption><%= attributes.name %></figcaption>'+
-          +'</figure>'),
-   ...
+  var appleView = Backbone.View.extend({
+    template: _.template(
+        '<figure>'+
+          +'<img src="<%= attributes.url%>"/>'+
+          +'<figcaption><%= attributes.name %></figcaption>'+
+        +'</figure>'),
+  ...
 ```
 
 Please note the '<%=' and '%>' symbols, that instructions for Undescore.js to print values in properties **url** and **name** of **attributes** object.
@@ -318,11 +317,11 @@ Please note the '<%=' and '%>' symbols, that instructions for Undescore.js to pr
 Finally, we adding render function to the **appleView** class:
 
 ```javascript
-      render: function(appleName){
-        var appleModel = this.collection.where({name:appleName})[0];
-        var appleHtml = this.template(appleModel);
-        $('body').html(appleHtml);
-      }
+  render: function(appleName){
+    var appleModel = this.collection.where({name:appleName})[0];
+    var appleHtml = this.template(appleModel);
+    $('body').html(appleHtml);
+  }
 ```
 
 Right now **render** function is responsible for both loading the data and rendering it, later it will be a good idea to separate these two functionalities into different methods.
@@ -399,8 +398,6 @@ The whole app, which is in ga-backbone/collection/index.html, looks like this:
       app = new router;
       Backbone.history.start();      
     })
-
-
   </script>
 </head>
 <body>
@@ -415,7 +412,7 @@ Now, let' go to `collections/index.html#apples/fuji` or `collections/index.html#
 
 ## Event Binding
 
-In real life getting data does not happen instantaneously so we need to refactor our code.
+In real life getting data does not happen instantaneously so we need to refactor our code. For the better UI/UX we'll also have to show loading icon (a.k.a. spinner) to users to make sure that they know that the page is loading.
 
 Without Backbone.js we'll have to pass a function that renders as a callback to data loading function to make sure rendering function is not executed before we have actual data to display. 
 
@@ -424,19 +421,186 @@ It's good that we have event binding in Backbone. Therefore, when a user goes to
 Let's change what we call in the router:
 
 ```javascript
-      loadApple: function(appleName){
-        this.appleView.render(appleName);
-      }
+  ...
+    loadApple: function(appleName){
+      this.appleView.loadApple(appleName);
+    }
+  ...
 ```
 
-TODO: use load apple function and even listeners
+Everything else is the same till we get to the **appleView** class. We'll need to to add constructor or an initialize function. **initialize** is a special word/property in Backbone.js framework. It's called each time we create an instane of an object, i.e., `var someObj = new SomeObject()`. We can also pass extra parameters to **initialize** function, as we did with our views (we passed object with key **collection** and the value of apples Backbone Collection). More on Backbone constructors at <http://backbonejs.org/#View-constructor>.
 
-## Views and Subviews
+```javascript
+  ...
+  var appleView = Backbone.View.extend({
+    initialize: function(){
+      //TODO: create and setup model (aka apple)
+    },
+  ...
+```  
+
+Great, we have our **initialize** function. Now we need to create a model which will represent a single apple and set up propert event listeners to the model. We'll use two types of events, `change` and a custom event `spinner`. To do that we are going to use **on** function which takes these properties `event, actions, context`, more at <http://backbonejs.org/#Events-on>:
+
+```javascript
+  ...
+  var appleView = Backbone.View.extend({
+      this.model = new (Backbone.Model.extend({}));
+      this.model.bind('change', this.render, this);
+      this.bind('spinner',this.showSpinner, this);
+    },
+  ...      
+```
+
+The code above basically boils down to two simple things:
+
+1. when model changes call render function on this object (appleView)
+1. when this object (appleView) has event spinner, call showSpinner
+
+So far so good, right? But what about spinner, or loading GIF icon? Let's create a new property in **appleView**:
+
+```javascript
+  ...
+      templateSpinner: '<img src="img/spinner.gif" width="30"/>',
+  ...    
+```
+
+Remember loadApple funciton in the router? This is how we can implement it in appleView:
+
+```javascript
+  ...
+  loadApple:function(appleName){
+    this.trigger('spinner'); //show spinner GIF image
+    var view = this; //we'll need to access that inside of a closure
+    setTimeout(function(){ //simulates real time lag when fetching data from the remote server
+      view.model.set(view.collection.where({name:appleName})[0].attributes);  
+    },1000);    
+  },
+  ...
+```
+
+The first line will trigger `spinner` event (the function for which we still have to write). Second line is just for scoping issues (so we can use appleView inside of the closure). **setTimeout** function is simulating time lag of a real remote server response. Inside of it we assign attributes of selected model to our view's model by using **model.set()** function and **model.attributes** property (which return properties of a model). 
+
+Now we can remove extra code from **render** function and implement **showSpinner** function:
+
+```javascript
+  render: function(appleName){
+    var appleHtml = this.template(this.model);
+    $('body').html(appleHtml);
+  },
+  showSpinner: function(){
+    $('body').html(this.templateSpinner);        
+  }
+  ...
+```      
+
+That's all! Open `index.html#apples/gala` or `index.html#apples/fuji` in your browser and enjoy loading animation while waiting for an apple image to load. The full code of **index.html** file:
+
+```html
+<!DOCTYPE>
+<html>
+<head>
+  <script src="jquery.js"></script>
+  <script src="underscore.js"></script>
+  <script src="backbone.js"></script>
+
+  <script>
+   var appleData = [
+      {
+        name: "fuji",
+        url: 'img/fuji.jpg'
+      },
+      {
+        name: "gala",
+        url: 'img/gala.jpg'
+      }      
+    ];
+    var app;
+    var router = Backbone.Router.extend({
+      routes: {
+        "": "home",
+        "apples/:appleName": "loadApple"
+      },
+      initialize: function(){
+        var apples = new Apples();
+        apples.reset(appleData);
+        this.homeView = new homeView({collection: apples});
+        this.appleView = new appleView({collection: apples});
+      },
+      home: function(){        
+        this.homeView.render();
+      },
+      loadApple: function(appleName){
+        this.appleView.loadApple(appleName);
+
+      }
+    });
+
+    var homeView = Backbone.View.extend({
+      el: 'body',
+      template: _.template('Apple data: <%= data %>'),
+      render: function(){
+        this.$el.html(this.template({data: JSON.stringify(this.collection.models)}));
+      }
+      //TODO subviews
+    });
+
+    var Apples = Backbone.Collection.extend({
+
+    });
+    var appleView = Backbone.View.extend({
+      initialize: function(){
+        this.model = new (Backbone.Model.extend({}));
+        this.model.on('change', this.render, this);
+        this.on('spinner',this.showSpinner, this);
+      },
+      template: _.template('<figure>\
+                              <img src="<%= attributes.url%>"/>\
+                              <figcaption><%= attributes.name %></figcaption>\
+                            </figure>'),
+      templateSpinner: '<img src="img/spinner.gif" width="30"/>',
+
+      loadApple:function(appleName){
+        this.trigger('spinner');
+        var view = this; //we'll need to access that inside of a closure
+        setTimeout(function(){ //simulates real time lag when fetching data from the remote server
+          view.model.set(view.collection.where({name:appleName})[0].attributes);  
+        },1000);
+        
+      },
+
+      render: function(appleName){
+        var appleHtml = this.template(this.model);
+        $('body').html(appleHtml);
+      },
+      showSpinner: function(){
+        $('body').html(this.templateSpinner);        
+      }
+
+    });
+    $(document).ready(function(){
+      app = new router;
+      Backbone.history.start();      
+    })
+
+
+  </script>
+</head>
+<body>
+  <a href="#apples/fuji">fuji</a>
+  <div></div>
+</body>
+</html>
+```
+
+## Views and Subviews with Underscore.js
 
 TODO: use subview to render list of apples
 
-## ADM and Super Simple Backbone Starter Kit
+## ADM and Require.js
 
+TODO: simple require.js example, split template into separate files. Shim?
+
+## Super Simple Backbone Starter Kit
 Load local HTTP server, e.g., [MAMP](http://www.mamp.info/en/index.html), and open you browser at the folder in which you downloaded/cloned SSBSK.
 
 
