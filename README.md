@@ -5,6 +5,15 @@ Working material for a new chapter of [Rapid Prototyping with JS](leanpub.com/ra
 Originally developed as instructions for General Assembly class *Introduction to Backbone.js for Front-end Developers and Designers*: <http://generalassemb.ly/education/582/introduction-to-backbone-js-for-front-end-developers-and-designers/955> and <http://www.eventbrite.com/event/5326760484/estw>.
 
 
+## Content
+
+1. [Setting up Backbone.js App From Scratch](https://github.com/azat-co/ga-backbone#setting-up-backbonejs-app-from-scratch)
+1. [Working with Collections](https://github.com/azat-co/ga-backbone#working-with-collections)
+1. [Event Binding](https://github.com/azat-co/ga-backbone#event-binding)
+1. [View and Subviews with Underscore.js](https://github.com/azat-co/ga-backbone#event-binding)
+1. [ADM and Require.js](https://github.com/azat-co/ga-backbone#event-binding)
+1. [Super Simple Backbone Starter Kit](https://github.com/azat-co/ga-backbone#event-binding)
+
 ## Setting up Backbone.js App From Scratch
 
 We're going to build typical starter  "Hello World" application using Backbone.js and MVC architecture. I know it might sound like an overkill in the beginning, but as we go along with each step we'll add more and more complexity, things like Models, Subviews and Collections. 
