@@ -27,7 +27,6 @@
         apples.reset(appleData);
         this.homeView = new homeView({collection: apples});
         this.appleView = new appleView({collection: apples});
-        this.homeView.on('showDetails', this.appleView.singleApple, this);
       },
       home: function(){        
         this.homeView.render();

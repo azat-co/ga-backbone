@@ -603,22 +603,257 @@ That's all! Open `index.html#apples/gala` or `index.html#apples/fuji` in your br
 
 ## Views and Subviews with Underscore.js
 
+TODO: break down appleItemView
+TODO: add instructions
+
 <https://github.com/azat-co/ga-backbone/tree/master/subview>
 
-TODO: write instructions
+Subview are Backbone Views that are created and used inside of another Backbone View. Subview are a great way to separate UI events (e.g., clicks) and template for single element. Use case might include row in a table, list item in a list, paragraph, new line, etc. We'll refactor our home page to show nice list of apples with on click events. Let's start with creating a subview for a single apple:
 
+```javascript
+    var appleItemView = Backbone.View.extend({
+      tagName: 'li',
+      template: _.template(''
+             +'<a href="#apples/<%=name%>" >'
+            +'<%=name%>'
+            +'</a>&nbsp;<a class="details" href="#">details</a>'),
+      events: {
+        'click .details': 'showDetails'
+      },
+      render: function() {
+        this.$el.html(this.template(this.model.attributes));
+      },
+      showDetails: function(){
+        this.trigger('showDetailEvent', this);
+      }
+    })
+```
+
+
+homeView:
+
+```javascript
+      listEl: '.apples-list',
+      infoEl: '.info-box',
+```
+
+```javascript
+      template: _.template('Apple data: <ul class="apples-list"></ul><div class="info-box"></div>'),
+```
+
+```javascript
+      initialize: function() {
+        this.$el.html(this.template);
+      },
+```
+
+```javascript
+      render: function(){
+        view = this; //so we can use view inside of closure
+        this.collection.each(function(apple){
+          var appleSubView = new appleItemView({model:apple}); // create subview with model apple
+          appleSubView.on('showDetailEvent', view.loadSingleApple, view);
+          appleSubView.render(); // compiles tempalte and single apple data
+          $(view.listEl).append(appleSubView.$el);   //append jQuery object from single apple to apples-list DOM element
+        });
+      },
+```      
+
+```javascript
+      loadSingleApple: function(appleLiView) {
+        console.log(appleLiView)
+        this.collection.trigger('showDetails', {homeView: this, apple: appleLiView.model, selector: this.infoEl});
+      }
+```
+
+homeView full code:
+
+```javascript
+    var homeView = Backbone.View.extend({
+      el: 'body',
+      listEl: '.apples-list',
+      infoEl: '.info-box',
+      template: _.template('Apple data: <ul class="apples-list"></ul><div class="info-box"></div>'),
+      initialize: function() {
+        this.$el.html(this.template);
+      },
+      render: function(){
+        view = this; //so we can use view inside of closure
+        this.collection.each(function(apple){
+          var appleSubView = new appleItemView({model:apple}); // create subview with model apple
+          appleSubView.on('showDetailEvent', view.loadSingleApple, view);
+          appleSubView.render(); // compiles tempalte and single apple data
+          $(view.listEl).append(appleSubView.$el);   //append jQuery object from single apple to apples-list DOM element
+        });
+      },
+      loadSingleApple: function(appleLiView) {
+        console.log(appleLiView)
+        this.collection.trigger('showDetails', {homeView: this, apple: appleLiView.model, selector: this.infoEl});
+      }
+    });  
+```
+
+appleView:
+
+```javascript
+        this.collection.on('showDetails', this.singleApple, this);
+```
+
+```javascript
+      singleApple: function(data) {
+        console.log(data)
+        var apple = data.apple;
+        var selector = data.selector;
+        $(selector).html(this.template(apple));
+      }
+```
+
+full index.html:
+
+```html
+<!DOCTYPE>
+<html>
+<head>
+  <script src="jquery.js"></script>
+  <script src="underscore.js"></script>
+  <script src="backbone.js"></script>
+
+  <script>
+   var appleData = [
+      {
+        name: "fuji",
+        url: 'img/fuji.jpg'
+      },
+      {
+        name: "gala",
+        url: 'img/gala.jpg'
+      }      
+    ];
+    var app;
+    var router = Backbone.Router.extend({
+      routes: {
+        "": "home",
+        "apples/:appleName": "loadApple"
+      },
+      initialize: function(){
+        var apples = new Apples();
+        apples.reset(appleData);
+        this.homeView = new homeView({collection: apples});
+        this.appleView = new appleView({collection: apples});
+      },
+      home: function(){        
+        this.homeView.render();
+      },
+      loadApple: function(appleName){
+        this.appleView.loadApple(appleName);
+
+      }
+    });
+    var appleItemView = Backbone.View.extend({
+      tagName: 'li',
+      template: _.template(''
+             +'<a href="#apples/<%=name%>" >'
+            +'<%=name%>'
+            +'</a>&nbsp;<a class="details" href="#">details</a>'),
+      events: {
+        'click .details': 'showDetails'
+      },
+      render: function() {
+        this.$el.html(this.template(this.model.attributes));
+      },
+      showDetails: function(){
+        this.trigger('showDetailEvent', this);
+      }
+    })
+
+    var homeView = Backbone.View.extend({
+      el: 'body',
+      listEl: '.apples-list',
+      infoEl: '.info-box',
+      template: _.template('Apple data: <ul class="apples-list"></ul><div class="info-box"></div>'),
+      initialize: function() {
+        this.$el.html(this.template);
+      },
+      render: function(){
+        view = this; //so we can use view inside of closure
+        this.collection.each(function(apple){
+          var appleSubView = new appleItemView({model:apple}); // create subview with model apple
+          appleSubView.on('showDetailEvent', view.loadSingleApple, view);
+          appleSubView.render(); // compiles tempalte and single apple data
+          $(view.listEl).append(appleSubView.$el);   //append jQuery object from single apple to apples-list DOM element
+        });
+      },
+      loadSingleApple: function(appleLiView) {
+        console.log(appleLiView)
+        this.collection.trigger('showDetails', {homeView: this, apple: appleLiView.model, selector: this.infoEl});
+      }
+    });    
+
+    var Apples = Backbone.Collection.extend({
+
+    });
+    var appleView = Backbone.View.extend({
+      initialize: function(){
+        this.model = new (Backbone.Model.extend({}));
+        this.model.on('change', this.render, this);
+        this.on('spinner',this.showSpinner, this);
+        this.collection.on('showDetails', this.singleApple, this);
+      },
+      template: _.template('<figure>\
+                              <img src="<%= attributes.url%>"/>\
+                              <figcaption><%= attributes.name %></figcaption>\
+                            </figure>'),
+      templateSpinner: '<img src="img/spinner.gif" width="30"/>',
+
+      loadApple:function(appleName){
+        this.trigger('spinner');
+        var view = this; //we'll need to access that inside of a closure
+        setTimeout(function(){ //simulates real time lag when fetching data from the remote server
+          view.model.set(view.collection.where({name:appleName})[0].attributes);  
+        },1000);
+        
+      },
+
+      render: function(appleName){
+        var appleHtml = this.template(this.model);
+        $('body').html(appleHtml);
+      },
+      showSpinner: function(){
+        $('body').html(this.templateSpinner);        
+      },
+      singleApple: function(data) {
+        console.log(data)
+        var apple = data.apple;
+        var selector = data.selector;
+        $(selector).html(this.template(apple));
+      }
+
+    });
+    $(document).ready(function(){
+      app = new router;
+      Backbone.history.start();      
+    })
+
+
+  </script>
+</head>
+<body>
+  <div></div>
+</body>
+</html>
+```
 
 ## Refactoring
 
 TODO: check why back button is not working (document ready?)
-TODO: Create Closure
-TODO: eliminate polution of a global scope, 
+TODO: Create Closure by eliminating polution of a global scope
 
 ## ADM and Require.js
 
 TODO: simple require.js example, split template into separate files. Shim?
 
 ## Super Simple Backbone Starter Kit
+
 Load local HTTP server, e.g., [MAMP](http://www.mamp.info/en/index.html), and open you browser at the folder in which you downloaded/cloned SSBSK.
 
 
