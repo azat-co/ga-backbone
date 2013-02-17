@@ -20,57 +20,102 @@
     var router = Backbone.Router.extend({
       routes: {
         "": "home",
-        "apples/:appleName": "loadApple",
-        "login":"showLogin"
+        "apples/:appleName": "loadApple"
       },
       initialize: function(){
         var apples = new Apples();
         apples.reset(appleData);
         this.homeView = new homeView({collection: apples});
         this.appleView = new appleView({collection: apples});
+        this.homeView.on('showDetails', this.appleView.singleApple, this);
       },
       home: function(){        
         this.homeView.render();
       },
       loadApple: function(appleName){
-        this.homeView.render();
-        this.appleView.render(appleName);
+        this.appleView.loadApple(appleName);
+
       }
     });
+    var appleItemView = Backbone.View.extend({
+      tagName: 'li',
+      template: _.template(''
+             +'<a href="#apples/<%=name%>" >'
+            +'<%=name%>'
+            +'</a>&nbsp;<a class="details" href="#">details</a>'),
+      events: {
+        'click .details': 'showDetails'
+      },
+      render: function() {
+        this.$el.html(this.template(this.model.attributes));
+      },
+      showDetails: function(){
+        this.trigger('showDetailEvent', this);
+      }
+    })
 
     var homeView = Backbone.View.extend({
-      el: '#main',
-      template: _.template('Apple data: <% _.each(data, function(item)'+
-        ' {'
-        +'%>'
-        +'<a href="#apples/<%=item.attributes.name%>" >'
-        +'<%=item.attributes.name%>'
-        +'</a><br/> <%'
-        +'})  %>'),
+      el: 'body',
+      listEl: '.apples-list',
+      infoEl: '.info-box',
+      template: _.template('Apple data: <ul class="apples-list"></ul><div class="info-box"></div>'),
+      initialize: function() {
+        this.$el.html(this.template);
+      },
       render: function(){
-        console.log(this.collection)
-        this.$el.html(this.template({data: this.collection.models}));
+        view = this; //so we can use view inside of closure
+        this.collection.each(function(apple){
+          var appleSubView = new appleItemView({model:apple}); // create subview with model apple
+          appleSubView.on('showDetailEvent', view.loadSingleApple, view);
+          appleSubView.render(); // compiles tempalte and single apple data
+          $(view.listEl).append(appleSubView.$el);   //append jQuery object from single apple to apples-list DOM element
+        });
+      },
+      loadSingleApple: function(appleLiView) {
+        console.log(appleLiView)
+        this.collection.trigger('showDetails', {homeView: this, apple: appleLiView.model, selector: this.infoEl});
       }
-      //TODO subviews
-    });
+    });    
 
     var Apples = Backbone.Collection.extend({
 
     });
     var appleView = Backbone.View.extend({
-      el:'.single-apple',
+      initialize: function(){
+        this.model = new (Backbone.Model.extend({}));
+        this.model.on('change', this.render, this);
+        this.on('spinner',this.showSpinner, this);
+        this.collection.on('showDetails', this.singleApple, this);
+      },
       template: _.template('<figure>\
                               <img src="<%= attributes.url%>"/>\
                               <figcaption><%= attributes.name %></figcaption>\
                             </figure>'),
+      templateSpinner: '<img src="img/spinner.gif" width="30"/>',
 
-      //re-write with load apple and event binding
+      loadApple:function(appleName){
+        this.trigger('spinner');
+        var view = this; //we'll need to access that inside of a closure
+        setTimeout(function(){ //simulates real time lag when fetching data from the remote server
+          view.model.set(view.collection.where({name:appleName})[0].attributes);  
+        },1000);
+        
+      },
 
       render: function(appleName){
-        var appleModel = this.collection.where({name:appleName})[0];
-        var appleHtml = this.template(appleModel);
-        this.$el.html(appleHtml);
+        var appleHtml = this.template(this.model);
+        $('body').html(appleHtml);
+      },
+      showSpinner: function(){
+        $('body').html(this.templateSpinner);        
+      },
+      singleApple: function(data) {
+        console.log(data)
+        var apple = data.apple;
+        var selector = data.selector;
+        $(selector).html(this.template(apple));
       }
+
     });
     $(document).ready(function(){
       app = new router;
@@ -81,7 +126,6 @@
   </script>
 </head>
 <body>
-  <div id="main"></div>
-  <div class="single-apple"></div>
+  <div></div>
 </body>
 </html>

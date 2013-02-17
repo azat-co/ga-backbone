@@ -10,9 +10,9 @@ Originally developed as instructions for General Assembly class *Introduction to
 1. [Setting up Backbone.js App From Scratch](https://github.com/azat-co/ga-backbone#setting-up-backbonejs-app-from-scratch)
 1. [Working with Collections](https://github.com/azat-co/ga-backbone#working-with-collections)
 1. [Event Binding](https://github.com/azat-co/ga-backbone#event-binding)
-1. [View and Subviews with Underscore.js](https://github.com/azat-co/ga-backbone#event-binding)
-1. [ADM and Require.js](https://github.com/azat-co/ga-backbone#event-binding)
-1. [Super Simple Backbone Starter Kit](https://github.com/azat-co/ga-backbone#event-binding)
+1. [View and Subviews with Underscore.js](https://github.com/azat-co/ga-backbone#views-and-subviews-with-underscorejs)
+1. [ADM and Require.js](https://github.com/azat-co/ga-backbone#adm-and-requirejs)
+1. [Super Simple Backbone Starter Kit](https://github.com/azat-co/ga-backbone#super-simple-backbone-starter-kit)
 
 ## Setting up Backbone.js App From Scratch
 
@@ -603,7 +603,16 @@ That's all! Open `index.html#apples/gala` or `index.html#apples/fuji` in your br
 
 ## Views and Subviews with Underscore.js
 
-TODO: use subview to render list of apples
+<https://github.com/azat-co/ga-backbone/tree/master/subview>
+
+TODO: write instructions
+
+
+## Refactoring
+
+TODO: check why back button is not working (document ready?)
+TODO: Create Closure
+TODO: eliminate polution of a global scope, 
 
 ## ADM and Require.js
 
