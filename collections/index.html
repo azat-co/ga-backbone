@@ -9,18 +9,18 @@
    var appleData = [
       {
         name: "fuji",
-        url: 'img/fuji.jpg'
+        url: "img/fuji.jpg"
       },
       {
         name: "gala",
-        url: 'img/gala.jpg'
+        url: "img/gala.jpg"
       }      
     ];
     var app;
     var router = Backbone.Router.extend({
       routes: {
-        "": "home",
-        "apples/:appleName": "loadApple"
+        '': 'home',
+        'apples/:appleName': 'loadApple'
       },
       initialize: function(){
         var apples = new Apples();
@@ -53,11 +53,8 @@
                               <img src="<%= attributes.url%>"/>\
                               <figcaption><%= attributes.name %></figcaption>\
                             </figure>'),
-
       //re-write with load apple and event binding
-
       render: function(appleName){
-
         var appleModel = this.collection.where({name:appleName})[0];
         var appleHtml = this.template(appleModel);
         $('body').html(appleHtml);

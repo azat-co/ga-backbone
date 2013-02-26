@@ -39,8 +39,9 @@ And include them in the index.html file like this:
   <script src="backbone.js"></script>
 
   <script>
-
+    //TODO write some awesome JS code!
   </script>
+
 </head>
 <body>
 </body>
@@ -70,7 +71,7 @@ Routes need to be in the following format: `'path/:param':'action' with will res
 ```javascript
     var router = Backbone.Router.extend({
       routes: {
-        "": "home"
+        '': 'home'
       }
     });
 ```
@@ -80,7 +81,7 @@ This is good, but now we need to add a **home** function:
 ```javascript
     var router = Backbone.Router.extend({
       routes: {
-        "": "home"
+        '': 'home'
       },
       home: function(){
         //TODO render html
@@ -123,7 +124,7 @@ Now, if we go back to the **router** we can add these two lines to the **home** 
 ```javascript
     var router = Backbone.Router.extend({
       routes: {
-        "": "home"
+        '': 'home'
       },
       initialize: function(){
         
@@ -158,11 +159,11 @@ Here is the full code of index.html file:
   <script src="backbone.js"></script>
 
   <script>
-  
+
     var app;
     var router = Backbone.Router.extend({
       routes: {
-        "": "home"
+        '': 'home'
       },
       initialize: function(){
         
@@ -181,12 +182,10 @@ Here is the full code of index.html file:
       }
     });
 
-
     $(document).ready(function(){
       app = new router;
       Backbone.history.start();      
     })
-
 
   </script>
 </head>
@@ -211,11 +210,11 @@ We should add some data to play around and to hydrate our views so add this righ
    var appleData = [
       {
         name: "fuji",
-        url: 'img/fuji.jpg'
+        url: "img/fuji.jpg"
       },
       {
         name: "gala",
-        url: 'img/gala.jpg'
+        url: "img/gala.jpg"
       }      
     ];
 ```
@@ -227,8 +226,8 @@ Now to make UX little bit better we can add a new route to the routes object in 
 ```javascript
     ...  
     routes: {
-      "": "home",
-      "apples/:appleName": "loadApple"
+      '': 'home',
+      'apples/:appleName': 'loadApple'
     },
     ...
 ```
@@ -257,8 +256,8 @@ At this point we're pretty much done with the Router class and it should look li
 ```javascript
     var router = Backbone.Router.extend({
       routes: {
-        "": "home",
-        "apples/:appleName": "loadApple"
+        '': 'home',
+        'apples/:appleName': 'loadApple'
       },
       initialize: function(){
         var apples = new Apples();
@@ -293,7 +292,6 @@ Apple Backbone Collections is clean and simple:
 
 ```javascript
     var Apples = Backbone.Collection.extend({
-
     });
 ```
 
@@ -349,11 +347,11 @@ The whole app, which is in ga-backbone/collection/index.html, looks like this:
    var appleData = [
       {
         name: "fuji",
-        url: 'img/fuji.jpg'
+        url: "img/fuji.jpg"
       },
       {
         name: "gala",
-        url: 'img/gala.jpg'
+        url: "img/gala.jpg"
       }      
     ];
     var app;
@@ -393,11 +391,8 @@ The whole app, which is in ga-backbone/collection/index.html, looks like this:
                               <img src="<%= attributes.url%>"/>\
                               <figcaption><%= attributes.name %></figcaption>\
                             </figure>'),
-
-      //re-write with load apple and event binding
-
+      //TODO re-write with load apple and event binding
       render: function(appleName){
-
         var appleModel = this.collection.where({name:appleName})[0];
         var appleHtml = this.template(appleModel);
         $('body').html(appleHtml);
@@ -407,6 +402,7 @@ The whole app, which is in ga-backbone/collection/index.html, looks like this:
       app = new router;
       Backbone.history.start();      
     })
+
   </script>
 </head>
 <body>
@@ -443,7 +439,7 @@ Everything else is the same till we get to the **appleView** class. We'll need t
   ...
   var appleView = Backbone.View.extend({
     initialize: function(){
-      //TODO: create and setup model (aka apple)
+      //TODO: create and setup model (aka an apple)
     },
   ...
 ```  
@@ -469,7 +465,7 @@ So far so good, right? But what about spinner, or loading GIF icon? Let's create
 
 ```javascript
   ...
-      templateSpinner: '<img src="img/spinner.gif" width="30"/>',
+    templateSpinner: '<img src="img/spinner.gif" width="30"/>',
   ...    
 ```
 
@@ -516,11 +512,11 @@ That's all! Open `index.html#apples/gala` or `index.html#apples/fuji` in your br
    var appleData = [
       {
         name: "fuji",
-        url: 'img/fuji.jpg'
+        url: "img/fuji.jpg"
       },
       {
         name: "gala",
-        url: 'img/gala.jpg'
+        url: "img/gala.jpg"
       }      
     ];
     var app;
@@ -590,7 +586,6 @@ That's all! Open `index.html#apples/gala` or `index.html#apples/fuji` in your br
       app = new router;
       Backbone.history.start();      
     })
-
 
   </script>
 </head>
@@ -816,7 +811,7 @@ By using the subviews we re-used the template for all of the items, attached spe
 
 Just in case, here is the full code for the subview example:
 
-```javascript
+```html
 <!DOCTYPE>
 <html>
 <head>
@@ -828,11 +823,11 @@ Just in case, here is the full code for the subview example:
    var appleData = [
       {
         name: "fuji",
-        url: 'img/fuji.jpg'
+        url: "img/fuji.jpg"
       },
       {
         name: "gala",
-        url: 'img/gala.jpg'
+        url: "img/gala.jpg"
       }      
     ];
     var app;
@@ -901,12 +896,11 @@ Just in case, here is the full code for the subview example:
           $(view.listEl).append(appleSubView.$el);   //append jQuery object from single apple to apples-list DOM element
         });
       }
-
-
-    }); 
-    var Apples = Backbone.Collection.extend({
-
     });
+
+    var Apples = Backbone.Collection.extend({
+    });
+
     var appleView = Backbone.View.extend({
       initialize: function(){
         this.model = new (Backbone.Model.extend({}));
@@ -918,16 +912,13 @@ Just in case, here is the full code for the subview example:
                               <figcaption><%= attributes.name %></figcaption>\
                             </figure>'),
       templateSpinner: '<img src="img/spinner.gif" width="30"/>',
-
       loadApple:function(appleName){
         this.trigger('spinner');
         var view = this; //we'll need to access that inside of a closure
         setTimeout(function(){ //simulates real time lag when fetching data from the remote server
           view.model.set(view.collection.where({name:appleName})[0].attributes);  
-        },1000);
-        
+        },1000);        
       },
-
       render: function(appleName){
         var appleHtml = this.template(this.model);
         $('body').html(appleHtml);
@@ -935,13 +926,12 @@ Just in case, here is the full code for the subview example:
       showSpinner: function(){
         $('body').html(this.templateSpinner);        
       }
-
     });
+
     $(document).ready(function(){
       app = new router;
       Backbone.history.start();      
     })
-
 
   </script>
 </head>

@@ -9,18 +9,18 @@
    var appleData = [
       {
         name: "fuji",
-        url: 'img/fuji.jpg'
+        url: "img/fuji.jpg"
       },
       {
         name: "gala",
-        url: 'img/gala.jpg'
+        url: "img/gala.jpg"
       }      
     ];
     var app;
     var router = Backbone.Router.extend({
       routes: {
-        "": "home",
-        "apples/:appleName": "loadApple"
+        '': 'home',
+        'apples/:appleName': 'loadApple'
       },
       initialize: function(){
         var apples = new Apples();
@@ -47,7 +47,6 @@
     });
 
     var Apples = Backbone.Collection.extend({
-
     });
     var appleView = Backbone.View.extend({
       initialize: function(){
@@ -83,7 +82,6 @@
       app = new router;
       Backbone.history.start();      
     })
-
 
   </script>
 </head>
