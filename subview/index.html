@@ -38,44 +38,53 @@
     });
     var appleItemView = Backbone.View.extend({
       tagName: 'li',
-      template: _.template(''
-             +'<a href="#apples/<%=name%>" >'
-            +'<%=name%>'
-            +'</a>&nbsp;<a class="details" href="#">details</a>'),
+      // template: _.template(''
+      //        +'<a href="#apples/<%=name%>" target="_blank">'
+      //       +'<%=name%>'
+      //       +'</a>&nbsp;<a class="add-to-cart" href="#">buy</a>'),
+      template: _.template('\
+             <a href="#apples/<%=name%>" target="_blank">\
+            <%=name%>\
+            </a>&nbsp;<a class="add-to-cart" href="#">buy</a>\
+            '),
+
       events: {
-        'click .details': 'showDetails'
+        'click .add-to-cart': 'addToCart'
       },
       render: function() {
         this.$el.html(this.template(this.model.attributes));
       },
-      showDetails: function(){
-        this.trigger('showDetailEvent', this);
+      addToCart: function(){
+        this.model.collection.trigger('addToCart', this.model);
       }
-    })
+    });
 
     var homeView = Backbone.View.extend({
       el: 'body',
       listEl: '.apples-list',
-      infoEl: '.info-box',
-      template: _.template('Apple data: <ul class="apples-list"></ul><div class="info-box"></div>'),
+      cartEl: '.cart-box',
+      template: _.template('Apple data: \
+        <ul class="apples-list">\
+        </ul>\
+        <div class="cart-box"></div>'),
       initialize: function() {
         this.$el.html(this.template);
+        this.collection.on('addToCart', this.showCart, this);
       },
+      showCart: function(appleModel) {
+        $(this.cartEl).append(appleModel.attributes.name+'<br/>');
+      },      
       render: function(){
         view = this; //so we can use view inside of closure
         this.collection.each(function(apple){
           var appleSubView = new appleItemView({model:apple}); // create subview with model apple
-          appleSubView.on('showDetailEvent', view.loadSingleApple, view);
           appleSubView.render(); // compiles tempalte and single apple data
           $(view.listEl).append(appleSubView.$el);   //append jQuery object from single apple to apples-list DOM element
         });
-      },
-      loadSingleApple: function(appleLiView) {
-        console.log(appleLiView)
-        this.collection.trigger('showDetails', {homeView: this, apple: appleLiView.model, selector: this.infoEl});
       }
-    });    
 
+
+    }); 
     var Apples = Backbone.Collection.extend({
 
     });
@@ -84,7 +93,6 @@
         this.model = new (Backbone.Model.extend({}));
         this.model.on('change', this.render, this);
         this.on('spinner',this.showSpinner, this);
-        this.collection.on('showDetails', this.singleApple, this);
       },
       template: _.template('<figure>\
                               <img src="<%= attributes.url%>"/>\
@@ -107,12 +115,6 @@
       },
       showSpinner: function(){
         $('body').html(this.templateSpinner);        
-      },
-      singleApple: function(data) {
-        console.log(data)
-        var apple = data.apple;
-        var selector = data.selector;
-        $(selector).html(this.template(apple));
       }
 
     });

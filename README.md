@@ -83,7 +83,7 @@ This is good, but now we need to add a **home** function:
         "": "home"
       },
       home: function(){
-				//TODO render html
+        //TODO render html
       }
     });
 ```
@@ -223,7 +223,7 @@ We should add some data to play around and to hydrate our views so add this righ
 This will be our apple *database* or REST API endpoint substitute to provide us with names and URLs to the images.
 
 Now to make UX little bit better we can add a new route to the routes object in Backbone Route:
-	
+  
 ```javascript
     ...  
     routes: {
@@ -302,7 +302,7 @@ Apple view is not any more complex, it has only two properties, template and ren
 ```javascript
   var appleView = Backbone.View.extend({
     template: _.template(
-  				'<figure>\
+          '<figure>\
              <img src="<%= attributes.url%>"/>\
              <figcaption><%= attributes.name %></figcaption>\
            </figure>'),
@@ -603,114 +603,220 @@ That's all! Open `index.html#apples/gala` or `index.html#apples/fuji` in your br
 
 ## Views and Subviews with Underscore.js
 
-TODO: break down appleItemView
-TODO: add instructions
+This example is available at <https://github.com/azat-co/ga-backbone/tree/master/subview>.
 
-<https://github.com/azat-co/ga-backbone/tree/master/subview>
 
-Subview are Backbone Views that are created and used inside of another Backbone View. Subview are a great way to separate UI events (e.g., clicks) and template for single element. Use case might include row in a table, list item in a list, paragraph, new line, etc. We'll refactor our home page to show nice list of apples with on click events. Let's start with creating a subview for a single apple:
+Subview are Backbone Views that are created and used inside of another Backbone View. Subview are a great way to separate UI events (e.g., clicks) and template for single element. Use case might include row in a table, list item in a list, paragraph, new line, etc. We'll refactor our home page to show nice list of apples with on click events. Let's start with creating a subview for a single apple with our standard Backbone extend function:
 
 ```javascript
-    var appleItemView = Backbone.View.extend({
-      tagName: 'li',
-      template: _.template(''
-             +'<a href="#apples/<%=name%>" >'
-            +'<%=name%>'
-            +'</a>&nbsp;<a class="details" href="#">details</a>'),
-      events: {
-        'click .details': 'showDetails'
-      },
-      render: function() {
-        this.$el.html(this.template(this.model.attributes));
-      },
-      showDetails: function(){
-        this.trigger('showDetailEvent', this);
-      }
-    })
+  ...
+  var appleItemView = Backbone.View.extend({
+    tagName: 'li',
+    template: _.template(''
+           +'<a href="#apples/<%=name%>" target="_blank">'
+          +'<%=name%>'
+          +'</a>&nbsp;<a class="add-to-cart" href="#">buy</a>'),
+    events: {
+      'click .add-to-cart': 'addToCart'
+    },
+    render: function() {
+      this.$el.html(this.template(this.model.attributes));
+    },
+    addToCart: function(){
+      this.model.collection.trigger('addToCart', this.model);
+    }
+  });
+  ...
 ```
 
-
-homeView:
+Now we can populate object with tagName, template, events, render and addToCart properties/methods. 
 
 ```javascript
-      listEl: '.apples-list',
-      infoEl: '.info-box',
+  ...
+  tagName: 'li',
+  ...
+``` 
+
+tagName automatically let's Backbone create HTML element with the specified tag name, in this case li — list item. This will be a representation of a single apple, a row in our list.
+
+```javascript
+  ...
+  template: _.template(''
+         +'<a href="#apples/<%=name%>" target="_blank">'
+        +'<%=name%>'
+        +'</a>&nbsp;<a class="add-to-cart" href="#">buy</a>'),
+  ...
 ```
 
+Template is just a sting with Undescore.js instructions which are wrapped in <% and %> symbols. <%= simply means print the value. The same can be written with backslash escapes:
+
 ```javascript
-      template: _.template('Apple data: <ul class="apples-list"></ul><div class="info-box"></div>'),
+  ...
+  template: _.template('\
+         <a href="#apples/<%=name%>" target="_blank">\
+        <%=name%>\
+        </a>&nbsp;<a class="add-to-cart" href="#">buy</a>\
+        '),
+  ...
 ```
 
+Each li will have two anchor elements (a) with the link to a detailed apple view (#apples/:appleName) and a buy button. Now we're going to attach event listener to the buy button:
+
 ```javascript
-      initialize: function() {
-        this.$el.html(this.template);
-      },
+  ...
+  events: {
+    'click .add-to-cart': 'addToCart'
+  },
+  ...
 ```
 
-```javascript
-      render: function(){
-        view = this; //so we can use view inside of closure
-        this.collection.each(function(apple){
-          var appleSubView = new appleItemView({model:apple}); // create subview with model apple
-          appleSubView.on('showDetailEvent', view.loadSingleApple, view);
-          appleSubView.render(); // compiles tempalte and single apple data
-          $(view.listEl).append(appleSubView.$el);   //append jQuery object from single apple to apples-list DOM element
-        });
-      },
-```      
+The syntax follows this rule: event + jQuery element selector: function name. Both, the key and the value (right and left part separated by the colon) are strings.
 
-```javascript
-      loadSingleApple: function(appleLiView) {
-        console.log(appleLiView)
-        this.collection.trigger('showDetails', {homeView: this, apple: appleLiView.model, selector: this.infoEl});
-      }
+To render each item in the list we use jQuery html() function on this.$el jQuery object which is li (based on tagName):
+
+```javascript 
+  ...
+  render: function() {
+    this.$el.html(this.template(this.model.attributes));
+  },
+  ...
 ```
 
-homeView full code:
+addToCart will use trigger() function to notify collection that this particular model is up for the purchase by the user:
 
 ```javascript
-    var homeView = Backbone.View.extend({
-      el: 'body',
-      listEl: '.apples-list',
-      infoEl: '.info-box',
-      template: _.template('Apple data: <ul class="apples-list"></ul><div class="info-box"></div>'),
-      initialize: function() {
-        this.$el.html(this.template);
-      },
-      render: function(){
-        view = this; //so we can use view inside of closure
-        this.collection.each(function(apple){
-          var appleSubView = new appleItemView({model:apple}); // create subview with model apple
-          appleSubView.on('showDetailEvent', view.loadSingleApple, view);
-          appleSubView.render(); // compiles tempalte and single apple data
-          $(view.listEl).append(appleSubView.$el);   //append jQuery object from single apple to apples-list DOM element
-        });
-      },
-      loadSingleApple: function(appleLiView) {
-        console.log(appleLiView)
-        this.collection.trigger('showDetails', {homeView: this, apple: appleLiView.model, selector: this.infoEl});
-      }
-    });  
+  ...
+    addToCart: function(){
+      this.model.collection.trigger('addToCart', this.model);
+    }
+  ...
 ```
 
-appleView:
+Here is the full code of the appleItemView Backbone view class:
 
 ```javascript
-        this.collection.on('showDetails', this.singleApple, this);
+  ...
+  var appleItemView = Backbone.View.extend({
+    tagName: 'li',
+    template: _.template(''
+           +'<a href="#apples/<%=name%>" target="_blank">'
+          +'<%=name%>'
+          +'</a>&nbsp;<a class="add-to-cart" href="#">buy</a>'),
+    events: {
+      'click .add-to-cart': 'addToCart'
+    },
+    render: function() {
+      this.$el.html(this.template(this.model.attributes));
+    },
+    addToCart: function(){
+      this.model.collection.trigger('addToCart', this.model);
+    }
+  });
+  ...
 ```
+
+That was easy, right? But what about the master view which is supposed to render all our items (apples) and provide wrapper container for li HTML elements (ul is our wrapper). We need to modify and enhance our homeView. 
+
+For started we can add extra properties as string understandable by jQuery as selectors:
 
 ```javascript
-      singleApple: function(data) {
-        console.log(data)
-        var apple = data.apple;
-        var selector = data.selector;
-        $(selector).html(this.template(apple));
-      }
+  ...
+  el: 'body',
+  listEl: '.apples-list',
+  cartEl: '.cart-box',
+  ...
 ```
 
-full index.html:
+We can use properties from above in the template or just hard-code them (we'll refactor our code later):
 
-```html
+```javascript      
+  ...
+  template: _.template('Apple data: \
+    <ul class="apples-list">\
+    </ul>\
+    <div class="cart-box"></div>'),
+  ...
+```
+
+Initialize function will be called when homeView is created (new homeView) and we render our template (with our favorite html function) and attach event listener to the collection (which is a set of apple models):
+
+```javascript        
+  ...
+    initialize: function() {
+      this.$el.html(this.template);
+      this.collection.on('addToCart', this.showCart, this);
+    },
+  ...
+```
+
+The syntax for binding event is covered in the previous section. It boils down to calling showCart function of homeView. In this function we append appleName to the cart (along with a line break, br element):
+
+```javascript  
+  ...    
+    showCart: function(appleModel) {
+      $(this.cartEl).append(appleModel.attributes.name+'<br/>');
+    },
+  ...
+```
+
+Finally here is our glorious render function in which we iterate through each model in the collection (each apple), create appleItemView for each apple, create li element for each apple and append that elements to view.listEl which is ul element with a class apples-list in the DOM:
+
+```javascript      
+  ...
+  render: function(){
+    view = this; 
+    //so we can use view inside of closure
+    this.collection.each(function(apple){
+      var appleSubView = new appleItemView({model:apple}); 
+      // create subview with model apple
+      appleSubView.render(); 
+      // compiles tempalte and single apple data
+      $(view.listEl).append(appleSubView.$el);   
+      //append jQuery object from single apple to apples-list DOM element
+    });
+  }
+  ...
+```
+
+    
+Let's make sure we didn't miss anything in the homeView Backbone view:
+
+```javascript
+  ...
+  var homeView = Backbone.View.extend({
+    el: 'body',
+    listEl: '.apples-list',
+    cartEl: '.cart-box',
+    template: _.template('Apple data: \
+      <ul class="apples-list">\
+      </ul>\
+      <div class="cart-box"></div>'),
+    initialize: function() {
+      this.$el.html(this.template);
+      this.collection.on('addToCart', this.showCart, this);
+    },
+    showCart: function(appleModel) {
+      $(this.cartEl).append(appleModel.attributes.name+'<br/>');
+    },      
+    render: function(){
+      view = this; //so we can use view inside of closure
+      this.collection.each(function(apple){
+        var appleSubView = new appleItemView({model:apple}); // create subview with model apple
+        appleSubView.render(); // compiles tempalte and single apple data
+        $(view.listEl).append(appleSubView.$el);   //append jQuery object from single apple to apples-list DOM element
+      });
+    }
+  }); 
+  ...
+```
+
+You should be able to click on the buy and cart will populate with the apples of your choice. Looking at an individual apple does not require typing its name in the URL address bar of the browser. We can click on the name and it opens a new window with a detailed view.
+
+By using the subviews we re-used the template for all of the items, attached specific event to each item. Those event are smart enough to pass the information about the model to other objects: views and collections.
+
+Just in case, here is the full code for the subview example:
+
+```javascript
 <!DOCTYPE>
 <html>
 <head>
@@ -751,44 +857,53 @@ full index.html:
     });
     var appleItemView = Backbone.View.extend({
       tagName: 'li',
-      template: _.template(''
-             +'<a href="#apples/<%=name%>" >'
-            +'<%=name%>'
-            +'</a>&nbsp;<a class="details" href="#">details</a>'),
+      // template: _.template(''
+      //        +'<a href="#apples/<%=name%>" target="_blank">'
+      //       +'<%=name%>'
+      //       +'</a>&nbsp;<a class="add-to-cart" href="#">buy</a>'),
+      template: _.template('\
+             <a href="#apples/<%=name%>" target="_blank">\
+            <%=name%>\
+            </a>&nbsp;<a class="add-to-cart" href="#">buy</a>\
+            '),
+
       events: {
-        'click .details': 'showDetails'
+        'click .add-to-cart': 'addToCart'
       },
       render: function() {
         this.$el.html(this.template(this.model.attributes));
       },
-      showDetails: function(){
-        this.trigger('showDetailEvent', this);
+      addToCart: function(){
+        this.model.collection.trigger('addToCart', this.model);
       }
-    })
+    });
 
     var homeView = Backbone.View.extend({
       el: 'body',
       listEl: '.apples-list',
-      infoEl: '.info-box',
-      template: _.template('Apple data: <ul class="apples-list"></ul><div class="info-box"></div>'),
+      cartEl: '.cart-box',
+      template: _.template('Apple data: \
+        <ul class="apples-list">\
+        </ul>\
+        <div class="cart-box"></div>'),
       initialize: function() {
         this.$el.html(this.template);
+        this.collection.on('addToCart', this.showCart, this);
       },
+      showCart: function(appleModel) {
+        $(this.cartEl).append(appleModel.attributes.name+'<br/>');
+      },      
       render: function(){
         view = this; //so we can use view inside of closure
         this.collection.each(function(apple){
           var appleSubView = new appleItemView({model:apple}); // create subview with model apple
-          appleSubView.on('showDetailEvent', view.loadSingleApple, view);
           appleSubView.render(); // compiles tempalte and single apple data
           $(view.listEl).append(appleSubView.$el);   //append jQuery object from single apple to apples-list DOM element
         });
-      },
-      loadSingleApple: function(appleLiView) {
-        console.log(appleLiView)
-        this.collection.trigger('showDetails', {homeView: this, apple: appleLiView.model, selector: this.infoEl});
       }
-    });    
 
+
+    }); 
     var Apples = Backbone.Collection.extend({
 
     });
@@ -797,7 +912,6 @@ full index.html:
         this.model = new (Backbone.Model.extend({}));
         this.model.on('change', this.render, this);
         this.on('spinner',this.showSpinner, this);
-        this.collection.on('showDetails', this.singleApple, this);
       },
       template: _.template('<figure>\
                               <img src="<%= attributes.url%>"/>\
@@ -820,12 +934,6 @@ full index.html:
       },
       showSpinner: function(){
         $('body').html(this.templateSpinner);        
-      },
-      singleApple: function(data) {
-        console.log(data)
-        var apple = data.apple;
-        var selector = data.selector;
-        $(selector).html(this.template(apple));
       }
 
     });
@@ -845,8 +953,11 @@ full index.html:
 
 ## Refactoring
 
+TODO: best practices and conventions
+
 TODO: check why back button is not working (document ready?)
-TODO: Create Closure by eliminating polution of a global scope
+
+TODO: Create Closure by eliminating pollution of a global scope
 
 ## ADM and Require.js
 
@@ -854,6 +965,6 @@ TODO: simple require.js example, split template into separate files. Shim?
 
 ## Super Simple Backbone Starter Kit
 
-Load local HTTP server, e.g., [MAMP](http://www.mamp.info/en/index.html), and open you browser at the folder in which you downloaded/cloned SSBSK.
+TODO: Load local HTTP server, e.g., [MAMP](http://www.mamp.info/en/index.html), and open you browser at the folder in which you downloaded/cloned SSBSK.
 
 
