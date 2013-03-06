@@ -941,20 +941,315 @@ Just in case, here is the full code for the subview example:
 </html>
 ```
 
+Open `collections/index.html#apples/fuji`.
+
 ## Refactoring
 
-TODO: best practices and conventions
+At this point you are probably wondering what is the benefit of using a framework and still having multiple classes, objects and elements with different functionalities in one file. This was done for the purpose of *Keep it Simple Stupid* (KISS). The bigger is your application the more pain there is in unorganized code base. Let's break down our application into multiple files where each file will be one of this types:
 
-TODO: check why back button is not working (document ready?)
+* view
+* template
+* router
+* collection
+* model
 
-TODO: Create Closure by eliminating pollution of a global scope
+Let write these script include tags into our **index.html** head: 
 
-## ADM and Require.js
+```html
+  <script src="apple-item.view.js"></script>
+  <script src="apple-home.view.js"></script>
+  <script src="apple.view.js"></script>
+  <script src="apples.js"></script>
+  <script src="apple-app.js"></script>
+ ```
 
-TODO: simple require.js example, split template into separate files. Shim?
+The name don't have to follow the convention of dashes and dots as long as it's easy to tell what each file is supposed to do.
+
+Now let's copy our objects/classes into corresponding files.
+Our main **index.html** file should look like this:
+
+```html
+<!DOCTYPE>
+<html>
+<head>
+  <script src="jquery.js"></script>
+  <script src="underscore.js"></script>
+  <script src="backbone.js"></script>
+
+  <script src="apple-item.view.js"></script>
+  <script src="apple-home.view.js"></script>
+  <script src="apple.view.js"></script>
+  <script src="apples.js"></script>
+  <script src="apple-app.js"></script>
+  
+</head>
+<body>
+  <div></div>
+</body>
+</html>
+```
+
+Content of **apple-item.view.js**:
+
+```javascript
+    var appleView = Backbone.View.extend({
+      initialize: function(){
+        this.model = new (Backbone.Model.extend({}));
+        this.model.on('change', this.render, this);
+        this.on('spinner',this.showSpinner, this);
+      },
+      template: _.template('<figure>\
+                              <img src="<%= attributes.url%>"/>\
+                              <figcaption><%= attributes.name %></figcaption>\
+                            </figure>'),
+      templateSpinner: '<img src="img/spinner.gif" width="30"/>',
+
+      loadApple:function(appleName){
+        this.trigger('spinner');
+        var view = this; //we'll need to access that inside of a closure
+        setTimeout(function(){ //simulates real time lag when fetching data from the remote server
+          view.model.set(view.collection.where({name:appleName})[0].attributes);  
+        },1000);
+        
+      },
+
+      render: function(appleName){
+        var appleHtml = this.template(this.model);
+        $('body').html(appleHtml);
+      },
+      showSpinner: function(){
+        $('body').html(this.templateSpinner);        
+      }
+
+    });
+    ```
+    
+    **apple-home.view.js**: 
+    
+    ```javascipt
+    
+
+    var homeView = Backbone.View.extend({
+      el: 'body',
+      listEl: '.apples-list',
+      cartEl: '.cart-box',
+      template: _.template('Apple data: \
+        <ul class="apples-list">\
+        </ul>\
+        <div class="cart-box"></div>'),
+      initialize: function() {
+        this.$el.html(this.template);
+        this.collection.on('addToCart', this.showCart, this);
+      },
+      showCart: function(appleModel) {
+        $(this.cartEl).append(appleModel.attributes.name+'<br/>');
+      },      
+      render: function(){
+        view = this; //so we can use view inside of closure
+        this.collection.each(function(apple){
+          var appleSubView = new appleItemView({model:apple}); // create subview with model apple
+          appleSubView.render(); // compiles tempalte and single apple data
+          $(view.listEl).append(appleSubView.$el);   //append jQuery object from single apple to apples-list DOM element
+        });
+      }
+
+
+    });
+    ```
+    
+    **apple.view.js**:
+   
+     ```javascript
+        var appleView = Backbone.View.extend({
+      initialize: function(){
+        this.model = new (Backbone.Model.extend({}));
+        this.model.on('change', this.render, this);
+        this.on('spinner',this.showSpinner, this);
+      },
+      template: _.template('<figure>\
+                              <img src="<%= attributes.url%>"/>\
+                              <figcaption><%= attributes.name %></figcaption>\
+                            </figure>'),
+      templateSpinner: '<img src="img/spinner.gif" width="30"/>',
+
+      loadApple:function(appleName){
+        this.trigger('spinner');
+        var view = this; //we'll need to access that inside of a closure
+        setTimeout(function(){ //simulates real time lag when fetching data from the remote server
+          view.model.set(view.collection.where({name:appleName})[0].attributes);  
+        },1000);
+        
+      },
+
+      render: function(appleName){
+        var appleHtml = this.template(this.model);
+        $('body').html(appleHtml);
+      },
+      showSpinner: function(){
+        $('body').html(this.templateSpinner);        
+      }
+
+    });
+```
+
+**apples.js**
+
+```javascript
+ 
+    var Apples = Backbone.Collection.extend({
+
+    });
+```
+
+**apple-app.js** :
+
+```javascript
+   var appleData = [
+      {
+        name: "fuji",
+        url: "img/fuji.jpg"
+      },
+      {
+        name: "gala",
+        url: "img/gala.jpg"
+      }      
+    ];
+    var app;
+    var router = Backbone.Router.extend({
+      routes: {
+        '': 'home',
+        'apples/:appleName': 'loadApple'
+      },
+      initialize: function(){
+        var apples = new Apples();
+        apples.reset(appleData);
+        this.homeView = new homeView({collection: apples});
+        this.appleView = new appleView({collection: apples});
+      },
+      home: function(){        
+        this.homeView.render();
+      },
+      loadApple: function(appleName){
+        this.appleView.loadApple(appleName);
+
+      }
+    });
+
+    $(document).ready(function(){
+      app = new router;
+      Backbone.history.start();      
+    })
+```
+
+Now let's try to open the application. It should work exactly the same as in previous example **subview**.
+
+It's better but not perfect because we still have html templates directly in JavaScript code. The problem with that is that designers and developers can't work on the same files and any change to the presentation requires a change in the main code base.
+
+We can add a few more include to our index.html file:
+
+
+```html
+  <script src="apple-item.tpl.js"></script>
+  <script src="apple-home.tpl.js"></script>
+  <script src="apple-spinner.tpl.js"></script>
+  <script src="apple.tpl.js"></script>
+```
+
+Usually one Backbone view has one templates but in the case of our **appleView** (detailed view of an apple in a separate window) we also have loading icon spinner.
+
+The content of the files is just a global variable which is assign the string value. Later we use these varible in our views when we call Underscore.js helper method **_.template()**.
+
+**apple-item.tpl.js**:
+
+```javascript
+var appleItemTpl = '\
+             <a href="#apples/<%=name%>" target="_blank">\
+            <%=name%>\
+            </a>&nbsp;<a class="add-to-cart" href="#">buy</a>\
+            ';
+```
+
+**apple-home.tpl.js**
+
+```javascript
+var appleHomeTpl = 'Apple data: \
+        <ul class="apples-list">\
+        </ul>\
+        <div class="cart-box"></div>';
+```
+
+**apple-spinner.tpl.js**
+
+```javascript
+var appleSpinnerTpl = '<img src="img/spinner.gif" width="30"/>';
+```
+
+**apple.tpl.js**
+
+```javascript
+var appleTpl = '<figure>\
+                              <img src="<%= attributes.url%>"/>\
+                              <figcaption><%= attributes.name %></figcaption>\
+                            </figure>';
+```
+
+Try to start the application now. The full code is under **refactor** folder. 
+
+
+## AMD and Require.js
+
+
+
+As you can see in previous example we used global scoped variables (without the keyword `window`). 
+
+**Note:** Be carefull when you untroduce a lot of veriable into global namespace. There might be conflicts and other unpredicable concequences. For example, if you wrote an open source library and other developers started using methods and properties directly instead of using the interface, what happens later when you decide to finally remove/deprecate those global leacks? To prevent this properly written libraries and applications use [JavaScript closures](https://developer.mozilla.org/en-US/docs/JavaScript/Guide/Closures).
+
+Example of using closure and global variable module definition:
+
+```javascript
+(function() {
+  var apple= function() {
+  ...//do something useful like return apple object
+  };  
+  window.Apple = apple;
+}())
+```
+
+or in case we need an access to app object (which creates a dependency on that object):
+
+```javascript
+(function() {
+  var app = this.app; //equivalent of window.appliation in case we need a dependency (app)
+  this.apple = function() {
+  ...//return apple object/class
+  //use app variable
+  }
+  // eqivalent of window.apple = function(){...};
+}())
+```
+
+As you can see we create function and call it immediatly while wrapping everything in paranthesis `()`.
+
+
+This article does a great job at explaining why AMD is a good thing, [WHY AMD?](http://requirejs.org/docs/whyamd.html).
+
+Start you local HTTP server, e.g., [MAMP](http://www.mamp.info/en/index.html).
+
+
+TODO: for dev multi files:
+
+TODO: for production (one minified file) use <http://requirejs.org/docs/optimization.html>
+
 
 ## Super Simple Backbone Starter Kit
 
 TODO: Load local HTTP server, e.g., [MAMP](http://www.mamp.info/en/index.html), and open you browser at the folder in which you downloaded/cloned SSBSK.
 
+## TODOs
+
+TODO: list benefits (dependency mngmt) of AMD?
+
+TODO: model examples
+
+TODO: when your project picks up you won't have to build eveything from scratch
 
