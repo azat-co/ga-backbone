@@ -961,7 +961,7 @@ Let write these script include tags into our **index.html** head:
   <script src="apple.view.js"></script>
   <script src="apples.js"></script>
   <script src="apple-app.js"></script>
- ```
+```
 
 The name don't have to follow the convention of dashes and dots as long as it's easy to tell what each file is supposed to do.
 
@@ -1022,11 +1022,11 @@ Content of **apple-item.view.js**:
       }
 
     });
-    ```
+```
     
-    **apple-home.view.js**: 
+**apple-home.view.js**: 
     
-    ```javascipt
+```javascipt
     
 
     var homeView = Backbone.View.extend({
@@ -1055,11 +1055,11 @@ Content of **apple-item.view.js**:
 
 
     });
-    ```
+```
     
-    **apple.view.js**:
-   
-     ```javascript
+**apple.view.js**:
+
+```javascript
         var appleView = Backbone.View.extend({
       initialize: function(){
         this.model = new (Backbone.Model.extend({}));
@@ -1196,9 +1196,6 @@ var appleTpl = '<figure>\
 Try to start the application now. The full code is under **refactor** folder. 
 
 
-## AMD and Require.js
-
-
 
 As you can see in previous example we used global scoped variables (without the keyword `window`). 
 
@@ -1231,12 +1228,118 @@ or in case we need an access to app object (which creates a dependency on that o
 As you can see we create function and call it immediatly while wrapping everything in paranthesis `()`.
 
 
+## AMD and Require.js
+
+
+
 This article does a great job at explaining why AMD is a good thing, [WHY AMD?](http://requirejs.org/docs/whyamd.html).
 
 Start you local HTTP server, e.g., [MAMP](http://www.mamp.info/en/index.html).
 
 
-TODO: for dev multi files:
+Let enhance our code by using Require.js library. 
+
+Our index.html will look very minimalistic:
+
+```html
+<!DOCTYPE>
+<html>
+<head>
+  <script src="jquery.js"></script>
+  <script src="underscore.js"></script>
+  <script src="backbone.js"></script>
+  <script src="require.js"></script>
+  <script src="apple-app.js"></script>  
+
+</head>
+<body>
+  <div></div>
+</body>
+</html>
+```
+
+We only include libraries and one JavaScript file. This file has the following structure:
+
+```javascript
+require([...],function(...){...});
+```
+
+or, more explanatory:
+
+```javascript
+require([
+  'name-of-the-module',
+  ...
+  'name-of-the-other-module'
+  ],function(referenceToModule, ..., referenceToOtherModule){
+  ...//some usefull code
+  referenceToModule.someMethod();
+});
+```
+
+Basically we tell browser to load files from the array of filenames (first parameter of require function) and then pass our modules from that files to the function as variables (second argument of require function). Inside of the main function we can use our module by referencing the variables.
+
+So our **apple-app.js** will look like this:
+
+<<(amd/apple-app.js)
+
+We put all the code inside the function, required modules by their filenames and passed modules as parameters to the main function. To define module we need to use **define** function:
+
+```javascript
+define([...],function(...){...})
+```
+
+The meaning is similar to **require** function. We put dependencies as string of filenames (and paths) in the array and pass it as the first argument. Main function takes dependencies as parameters (the order of parameters and modules in the array is important):
+
+```javascript
+define(['name-of-the-module'],function(nameOfModule){
+  var b = nameOfModule.render();
+  return b; 
+})
+```
+Note: there is no need to append **.js** to the filename. Require.js does it automatically.
+
+Let's start with the templates and convert them into Require.js modules. This is **apple-item.tpl.js**:
+
+<<(amd/apple-item.tpl.js)
+
+**apple-home.tpl**:
+
+<<(amd/apple-home.tpl.js)
+    
+**apple-spinner.tpl.js**
+
+<<(amd/apple-spinner.tpl.js)
+
+**apple.tpl.js**
+
+<<(amd/apple.tpl.js)
+
+**apple-item.view.js**:
+
+<<(amd/apple-item.view.js)
+
+**apple-home.view.js**:
+
+<<(amd/apple-home.view.js)
+
+**apple.view.js**:
+
+<<(amd/apple.view.js)
+
+**apples.js**  
+
+<<(amd/apples.js)
+
+I hope you can see a patern by now. All our code is split into separate files based on the logic (e.g., view class, collection class, template). Main file loads all the dependencies with **require** function. If we need some module in non-main file, then we can ask for it in **define** function. Usually in modules we want to return an object, e.g., in templates we return string and in views we return Backbone View class.
+
+Try launching the examples. Visually there shouldn't be any changes. If you open Network tab in Developers Tool, you can see the difference in how files are loaded.
+
+`amd/index.html`: <http://cl.ly/image/2W0I0O1q0V23>
+`refactor/index.html`: <http://cl.ly/image/122X3q1M0P17>
+
+TODO: bust
+
 
 TODO: for production (one minified file) use <http://requirejs.org/docs/optimization.html>
 
