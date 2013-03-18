@@ -1228,7 +1228,7 @@ or in case we need an access to app object (which creates a dependency on that o
 As you can see we create function and call it immediatly while wrapping everything in paranthesis `()`.
 
 
-## AMD and Require.js
+## AMD and Require.js For Development
 
 
 
@@ -1338,21 +1338,67 @@ Try launching the examples. Visually there shouldn't be any changes. If you open
 `amd/index.html`: <http://cl.ly/image/2W0I0O1q0V23>
 `refactor/index.html`: <http://cl.ly/image/122X3q1M0P17>
 
-TODO: bust
+Require.js has a lot of configuration options which are defined through **requirejs.config()** call in the top level HTML page. More information can be found at <http://requirejs.org/docs/api.html#config>.
+
+Let add bust to our example. Bust argument will be appended to the url of each file preventing browser from caching the files. Perfect for development and terrible for production. :-)
+
+Add this to the **apple-app.js** file infront of everything else:
+
+```javascript
+requirejs.config({
+  urlArgs: "bust=" +  (new Date()).getTime()
+}); 
+require([
+...
+```
+
+Network tab will look like this: <http://cl.ly/image/3W3U3v3D3p1t>. Please notice that each file has 200 instead of 304 (not modified).
 
 
-TODO: for production (one minified file) use <http://requirejs.org/docs/optimization.html>
+## Require.js for Production
 
+we'll used Node Package Manager (NPM) to install requirejs in your project folder. In your project folder run these commands in a terminal:
+
+```bash
+$ npm install requirejs
+```
+
+or add `-g ` for global installation:
+
+```bash
+$ npm install -g requirejs
+```
+
+Create file **app.build.js**:
+
+<<(r/app.build.js)
+
+For more information on build file check out this example: <https://github.com/jrburke/r.js/blob/master/build/example.build.js>.
+
+Now everything should be ready for building one giagantic JavaScript file which will have all the dependencies:
+
+
+```bash
+$ r.js -o app.build.js
+```
+or
+
+```bash
+$ node_modules/requirejs/bin/r.js -o app.build.js
+```
+You should get list of files: <http://cl.ly/image/4123273V1806>.
+
+Open index.html in build folder. The network tab shows much improvment with just one file to load:
+<http://cl.ly/image/3l423v1C3o3r>.
+
+For more information checkout official documentation: <http://requirejs.org/docs/optimization.html>.
+
+Example code is available under `r` and `r/build` folders.
 
 ## Super Simple Backbone Starter Kit
 
-TODO: Load local HTTP server, e.g., [MAMP](http://www.mamp.info/en/index.html), and open you browser at the folder in which you downloaded/cloned SSBSK.
+To jump start your Backbone.js development consider using [Super Simple Backbone Starter Kit](https://github.com/azat-co/super-simple-backbone-starter-kit) or similar projects:
 
-## TODOs
-
-TODO: list benefits (dependency mngmt) of AMD?
-
-TODO: model examples
-
-TODO: when your project picks up you won't have to build eveything from scratch
-
+* [Backbone Boilerplate](http://backboneboilerplate.com/)
+* [Sample App with Backbone.js and Twitter Bootstrap](http://coenraets.org/blog/2012/02/sample-app-with-backbone-js-and-twitter-bootstrap/)
+* More tutorials <https://github.com/documentcloud/backbone/wiki/Tutorials%2C-blog-posts-and-example-sites>.
