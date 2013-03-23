@@ -2,7 +2,7 @@
     appDir: "./js",
     baseUrl: "./",
     dir: "build",
-    optimize: "uglify2",
+    optimize: "uglify",
     modules: [
         {
             name: "apple-app"
