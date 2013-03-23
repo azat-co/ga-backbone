@@ -12,7 +12,7 @@ Originally developed as instructions for General Assembly class *Introduction to
 1. [Event Binding](https://github.com/azat-co/ga-backbone#event-binding)
 1. [View and Subviews with Underscore.js](https://github.com/azat-co/ga-backbone#views-and-subviews-with-underscorejs)
 1. [ADM and Require.js for Development](https://github.com/azat-co/ga-backbone#amd-and-requirejs-for-development)
-1. [ADM and Require.js for Production](https://github.com/azat-co/ga-backbone#adm-and-requirejs-for-production)
+1. [Require.js for Production](https://github.com/azat-co/ga-backbone#requirejs-for-production)
 1. [Super Simple Backbone Starter Kit](https://github.com/azat-co/ga-backbone#super-simple-backbone-starter-kit)
 
 ## Setting up Backbone.js App From Scratch
