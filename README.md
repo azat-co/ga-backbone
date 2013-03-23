@@ -1,8 +1,14 @@
 # Introduction to Backbone
 
-Working material for a new chapter of [Rapid Prototyping with JS](leanpub.com/rapid-prototyping-with-js/): "Backbone.js in details".
+## Current Class
 
-Originally developed as instructions for General Assembly class *Introduction to Backbone.js for Front-end Developers and Designers*: <http://generalassemb.ly/education/582/introduction-to-backbone-js-for-front-end-developers-and-designers/955> and <http://www.eventbrite.com/event/5326760484/estw>.
+* [General Assembly: Introduction to Backbone](https://generalassemb.ly/education/introduction-to-backbonejs/san-francisco/1369)
+* [Register](http://www.eventbrite.com/event/5775317129/bf96d0a97418613fcbd6ec2ec9a50f0d)
+
+## Previous classes
+
+ * <http://generalassemb.ly/education/582/introduction-to-backbone-js-for-front-end-developers-and-designers/955> 
+ * <http://www.eventbrite.com/event/5326760484/estw>
 
 
 ## Content
