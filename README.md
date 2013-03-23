@@ -1327,37 +1327,141 @@ define(['name-of-the-module'],function(nameOfModule){
 ```
 Note: there is no need to append **.js** to the filename. Require.js does it automatically.
 
-Let's start with the templates and convert them into Require.js modules. This is **apple-item.tpl.js**:
+Let's start with the templates and convert them into Require.js modules. 
 
-<<(amd/apple-item.tpl.js)
+This is **apple-item.tpl.js**:
+
+
+```javascript
+define(function() {
+  return '\
+             <a href="#apples/<%=name%>" target="_blank">\
+            <%=name%>\
+            </a>&nbsp;<a class="add-to-cart" href="#">buy</a>\
+            '
+});   
+```
 
 **apple-home.tpl**:
 
-<<(amd/apple-home.tpl.js)
+```javascript
+define(function(){ 
+  return 'Apple data: \
+        <ul class="apples-list">\
+        </ul>\
+        <div class="cart-box"></div>';
+});
+```
+
     
 **apple-spinner.tpl.js**
 
-<<(amd/apple-spinner.tpl.js)
+```javascript
+define(function(){
+  return '<img src="img/spinner.gif" width="30"/>';
+});
+```
+
 
 **apple.tpl.js**
 
-<<(amd/apple.tpl.js)
+```javascript
+define(function(){
+  return '<figure>\
+                              <img src="<%= attributes.url%>"/>\
+                              <figcaption><%= attributes.name %></figcaption>\
+                            </figure>';
+ });                           
+```
+
 
 **apple-item.view.js**:
 
-<<(amd/apple-item.view.js)
+```javascript
+define(function() {
+  return '\
+             <a href="#apples/<%=name%>" target="_blank">\
+            <%=name%>\
+            </a>&nbsp;<a class="add-to-cart" href="#">buy</a>\
+            '
+});   
+
+```
+
 
 **apple-home.view.js**:
 
-<<(amd/apple-home.view.js)
+```javascript
+define(['apple-home.tpl','apple-item.view'],function(appleHomeTpl,appleItemView){
+return  Backbone.View.extend({
+      el: 'body',
+      listEl: '.apples-list',
+      cartEl: '.cart-box',
+      template: _.template(appleHomeTpl),
+      initialize: function() {
+        this.$el.html(this.template);
+        this.collection.on('addToCart', this.showCart, this);
+      },
+      showCart: function(appleModel) {
+        $(this.cartEl).append(appleModel.attributes.name+'<br/>');
+      },      
+      render: function(){
+        view = this; //so we can use view inside of closure
+        this.collection.each(function(apple){
+          var appleSubView = new appleItemView({model:apple}); // create subview with model apple
+          appleSubView.render(); // compiles tempalte and single apple data
+          $(view.listEl).append(appleSubView.$el);   //append jQuery object from single apple to apples-list DOM element
+        });
+      }
+    });
+})
+
+```
+
 
 **apple.view.js**:
 
-<<(amd/apple.view.js)
+```javascript
+define([    
+  'apple.tpl',
+  'apple-spinner.tpl'
+],function(appleTpl,appleSpinnerTpl){
+  return  Backbone.View.extend({
+    initialize: function(){
+      this.model = new (Backbone.Model.extend({}));
+      this.model.on('change', this.render, this);
+      this.on('spinner',this.showSpinner, this);
+    },
+    template: _.template(appleTpl),
+    templateSpinner: appleSpinnerTpl,
+    loadApple:function(appleName){
+      this.trigger('spinner');
+      var view = this; //we'll need to access that inside of a closure
+      setTimeout(function(){ //simulates real time lag when fetching data from the remote server
+        view.model.set(view.collection.where({name:appleName})[0].attributes);  
+      },1000);      
+    },
+    render: function(appleName){
+      var appleHtml = this.template(this.model);
+      $('body').html(appleHtml);
+    },
+    showSpinner: function(){
+      $('body').html(this.templateSpinner);        
+    }
+  });
+});
+```
+
 
 **apples.js**  
 
-<<(amd/apples.js)
+```javascript
+define(function(){
+    return Backbone.Collection.extend({})
+});   
+
+```
+
 
 I hope you can see a patern by now. All our code is split into separate files based on the logic (e.g., view class, collection class, template). Main file loads all the dependencies with **require** function. If we need some module in non-main file, then we can ask for it in **define** function. Usually in modules we want to return an object, e.g., in templates we return string and in views we return Backbone View class.
 
