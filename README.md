@@ -693,9 +693,20 @@ Each `<li>` will have two anchor elements (`<a>`), links to a detailed apple vie
   ...
 ```
 
-The syntax follows this rule: event + jQuery element selector: function name. Both, the key and the value (right and left part separated by the colon) are strings.
+The syntax follows this rule: 
 
-To render each item in the list we use jQuery html() function on this.$el jQuery object which is li (based on tagName):
+	event + jQuery element selector: function name
+	
+Both, the key and the value (right and left parts separated by the colon) are strings. For example:
+
+	'click .add-to-cart': 'addToCart'
+
+or
+	
+	'click #load-more': 'loadMoreData'
+	
+
+To render each item in the list we''ll use jQuery `html()` function on `this.$el` jQuery object which is `<li>` HTML element based on our **tagName** attribute:
 
 ```javascript 
   ...
@@ -705,7 +716,7 @@ To render each item in the list we use jQuery html() function on this.$el jQuery
   ...
 ```
 
-addToCart will use trigger() function to notify collection that this particular model is up for the purchase by the user:
+addToCart will use `trigger()` function to notify collection that this particular model (apple) is up for the purchase by the user:
 
 ```javascript
   ...
@@ -715,7 +726,7 @@ addToCart will use trigger() function to notify collection that this particular 
   ...
 ```
 
-Here is the full code of the appleItemView Backbone view class:
+Here is the full code of the ** appleItemView** Backbone View class:
 
 ```javascript
   ...
@@ -738,9 +749,9 @@ Here is the full code of the appleItemView Backbone view class:
   ...
 ```
 
-That was easy, right? But what about the master view which is supposed to render all our items (apples) and provide wrapper container for li HTML elements (ul is our wrapper). We need to modify and enhance our homeView. 
+So far, so good?! But what about the master view which is supposed to render all our items (apples) and provide wrapper container for li HTML elements (`<ul>` is our wrapper). We need to modify and enhance our **homeView**. 
 
-For started we can add extra properties as string understandable by jQuery as selectors:
+To begin with, we can add extra properties as string understandable by jQuery as selectors:
 
 ```javascript
   ...
@@ -761,7 +772,7 @@ We can use properties from above in the template or just hard-code them (we'll r
   ...
 ```
 
-Initialize function will be called when homeView is created (new homeView) and we render our template (with our favorite html function) and attach event listener to the collection (which is a set of apple models):
+**initialize** function will be called when **homeView** is created (`new homeView()`) and we render our template (with our favorite html function) and attach event listener to the collection (which is a set of apple models):
 
 ```javascript        
   ...
@@ -772,7 +783,7 @@ Initialize function will be called when homeView is created (new homeView) and w
   ...
 ```
 
-The syntax for binding event is covered in the previous section. It boils down to calling showCart function of homeView. In this function we append appleName to the cart (along with a line break, br element):
+The syntax for binding event is covered in the previous section. It boils down to calling `showCart` function of **homeView**. In this function we append **appleName** to the cart (along with a line break, br element):
 
 ```javascript  
   ...    
@@ -782,7 +793,7 @@ The syntax for binding event is covered in the previous section. It boils down t
   ...
 ```
 
-Finally here is our glorious render function in which we iterate through each model in the collection (each apple), create appleItemView for each apple, create li element for each apple and append that elements to view.listEl which is ul element with a class apples-list in the DOM:
+Finally here is our long-waited render function in which we iterate through each model in the collection (each apple), create **appleItemView** for each apple, create `<li>` element for each apple and append that elements to **view.listEl** which is `<ul>` element with a class apples-list in the DOM:
 
 ```javascript      
   ...
@@ -802,7 +813,7 @@ Finally here is our glorious render function in which we iterate through each mo
 ```
 
     
-Let's make sure we didn't miss anything in the homeView Backbone view:
+Let's make sure we didn't miss anything in the **homeView** Backbone View:
 
 ```javascript
   ...
@@ -833,11 +844,13 @@ Let's make sure we didn't miss anything in the homeView Backbone view:
   ...
 ```
 
-You should be able to click on the buy and cart will populate with the apples of your choice. Looking at an individual apple does not require typing its name in the URL address bar of the browser. We can click on the name and it opens a new window with a detailed view.
+You should be able to click on the buy and cart will populate with the apples of your choice. Looking at an individual apple does not require typing its name in the URL address bar of the browser anymore. We can click on the name and it opens a new window with a detailed view. 
 
-By using the subviews we re-used the template for all of the items, attached specific event to each item. Those event are smart enough to pass the information about the model to other objects: views and collections.
+<http://cl.ly/image/3t3C2o351233>
 
-Just in case, here is the full code for the subview example:
+By using the subviews we re-used the template for all of the items, attached specific event to each item. Those events are smart enough to pass the information about the model to other objects: views and collections.
+
+Just in case, here is the full code for the subview example, which is also available at `subview/index.html`:
 
 ```html
 <!DOCTYPE>
@@ -969,11 +982,13 @@ Just in case, here is the full code for the subview example:
 </html>
 ```
 
-Open `collections/index.html#apples/fuji`.
+The link to individual item, e.g., `collections/index.html#apples/fuji` should work independently, by typing it in the browser address bar, as well.
 
 ## Refactoring
 
-At this point you are probably wondering what is the benefit of using a framework and still having multiple classes, objects and elements with different functionalities in one file. This was done for the purpose of *Keep it Simple Stupid* (KISS). The bigger is your application the more pain there is in unorganized code base. Let's break down our application into multiple files where each file will be one of this types:
+At this point you are probably wondering what is the benefit of using the framework and still having multiple classes, objects and elements with different functionalities in one *single* file. This was done for the purpose of *Keep it Simple Stupid* (KISS). 
+
+The bigger is your application the more pain there is in unorganized code base. Let's break down our application into multiple files where each file will be one of this types:
 
 * view
 * template
@@ -991,9 +1006,10 @@ Let write these script include tags into our **index.html** head:
   <script src="apple-app.js"></script>
 ```
 
-The name don't have to follow the convention of dashes and dots as long as it's easy to tell what each file is supposed to do.
+The names don't have to follow the convention of dashes and dots as long as it's easy to tell what each file is supposed to do.
 
 Now let's copy our objects/classes into corresponding files.
+
 Our main **index.html** file should look like this:
 
 ```html
@@ -1171,10 +1187,9 @@ Content of **apple-item.view.js**:
 
 Now let's try to open the application. It should work exactly the same as in previous example **subview**.
 
-It's better but not perfect because we still have html templates directly in JavaScript code. The problem with that is that designers and developers can't work on the same files and any change to the presentation requires a change in the main code base.
+It's  way better, but still far from perfect because we still have html templates directly in JavaScript code. The problem with that is that designers and developers can't work on the same files and any change to the presentation requires a change in the main code base.
 
-We can add a few more include to our index.html file:
-
+We can add a few more include to our **index.html** file:
 
 ```html
   <script src="apple-item.tpl.js"></script>
@@ -1185,9 +1200,9 @@ We can add a few more include to our index.html file:
 
 Usually one Backbone view has one templates but in the case of our **appleView** (detailed view of an apple in a separate window) we also have loading icon spinner.
 
-The content of the files is just a global variable which is assign the string value. Later we use these varible in our views when we call Underscore.js helper method **_.template()**.
+The content of the files is just a global variable which is assigned the string value. Later we use these variables in our views when we call Underscore.js helper method **_.template()**.
 
-**apple-item.tpl.js**:
+The file **apple-item.tpl.js**:
 
 ```javascript
 var appleItemTpl = '\
@@ -1223,11 +1238,9 @@ var appleTpl = '<figure>\
 
 Try to start the application now. The full code is under **refactor** folder. 
 
-
-
 As you can see in previous example we used global scoped variables (without the keyword `window`). 
 
-**Note:** Be carefull when you untroduce a lot of veriable into global namespace. There might be conflicts and other unpredicable concequences. For example, if you wrote an open source library and other developers started using methods and properties directly instead of using the interface, what happens later when you decide to finally remove/deprecate those global leacks? To prevent this properly written libraries and applications use [JavaScript closures](https://developer.mozilla.org/en-US/docs/JavaScript/Guide/Closures).
+**Note:** Be careful when you introduce a lot of variables into the global namespace (window keyword). There're might be conflicts and other unpredictable consequences. For example, if you wrote an open source library and other developers started using methods and properties directly instead of using the interface, what happens later when you decide to finally remove/deprecate those global leaks? To prevent this properly written libraries and applications use [JavaScript closures](https://developer.mozilla.org/en-US/docs/JavaScript/Guide/Closures).
 
 Example of using closure and global variable module definition:
 
@@ -1240,7 +1253,7 @@ Example of using closure and global variable module definition:
 }())
 ```
 
-or in case we need an access to app object (which creates a dependency on that object):
+Or in case we need an access to the app object (which creates a dependency on that object):
 
 ```javascript
 (function() {
@@ -1253,21 +1266,19 @@ or in case we need an access to app object (which creates a dependency on that o
 }())
 ```
 
-As you can see we create function and call it immediatly while wrapping everything in paranthesis `()`.
+As you can see we've created the function and called it immediately while also wrapping everything in parenthesis `()`.
 
 
 ## AMD and Require.js For Development
-
 
 
 This article does a great job at explaining why AMD is a good thing, [WHY AMD?](http://requirejs.org/docs/whyamd.html).
 
 Start you local HTTP server, e.g., [MAMP](http://www.mamp.info/en/index.html).
 
-
 Let enhance our code by using Require.js library. 
 
-Our index.html will look very minimalistic:
+Our **index.html** will look very minimalistic:
 
 ```html
 <!DOCTYPE>
@@ -1292,7 +1303,7 @@ We only include libraries and one JavaScript file. This file has the following s
 require([...],function(...){...});
 ```
 
-or, more explanatory:
+Or in a more explanatory way:
 
 ```javascript
 require([
@@ -1305,11 +1316,67 @@ require([
 });
 ```
 
-Basically we tell browser to load files from the array of filenames (first parameter of require function) and then pass our modules from that files to the function as variables (second argument of require function). Inside of the main function we can use our module by referencing the variables.
+Basically, we tell browser to load files from the array of filenames (first parameter of the `require()` function) and then pass our modules from that files to the function as variables (second argument of require function). Inside of the main function we can use our module by referencing the variables.
 
 So our **apple-app.js** will look like this:
 
-<<(amd/apple-app.js)
+```javascript
+  require([
+    'apple-item.tpl', //shim, change to test files
+    'apple-home.tpl',
+    'apple-spinner.tpl',
+    'apple.tpl',
+    'apple-item.view',
+    'apple-home.view',
+    'apple.view',
+    'apples'  
+  ],function(
+    appleItemTpl,
+    appleHomeTpl,
+    appleSpinnerTpl,
+    appleTpl,
+    appelItemView,
+    homeView,
+    appleView,
+    Apples
+    ){
+   var appleData = [
+      {
+        name: "fuji",
+        url: "img/fuji.jpg"
+      },
+      {
+        name: "gala",
+        url: "img/gala.jpg"
+      }      
+    ];
+    var app;
+    var router = Backbone.Router.extend({ //check if need to be required
+      routes: {
+        '': 'home',
+        'apples/:appleName': 'loadApple'
+      },
+      initialize: function(){
+        var apples = new Apples();
+        apples.reset(appleData);
+        this.homeView = new homeView({collection: apples});
+        this.appleView = new appleView({collection: apples});
+      },
+      home: function(){        
+        this.homeView.render();
+      },
+      loadApple: function(appleName){
+        this.appleView.loadApple(appleName);
+
+      }
+    });
+
+    $(document).ready(function(){
+      app = new router;
+      Backbone.history.start();      
+    })
+});    
+```
 
 We put all the code inside the function, required modules by their filenames and passed modules as parameters to the main function. To define module we need to use **define** function:
 
@@ -1325,7 +1392,7 @@ define(['name-of-the-module'],function(nameOfModule){
   return b; 
 })
 ```
-Note: there is no need to append **.js** to the filename. Require.js does it automatically.
+**Note**: there is no need to append **.js** to the filename. Require.js does it automatically.
 
 Let's start with the templates and convert them into Require.js modules. 
 
@@ -1463,16 +1530,16 @@ define(function(){
 ```
 
 
-I hope you can see a patern by now. All our code is split into separate files based on the logic (e.g., view class, collection class, template). Main file loads all the dependencies with **require** function. If we need some module in non-main file, then we can ask for it in **define** function. Usually in modules we want to return an object, e.g., in templates we return string and in views we return Backbone View class.
+I hope you can see the pattern by now. All our code is split into separate files based on the logic (e.g., view class, collection class, template). Main file loads all the dependencies with the `require` function. If we need some module in non-main file, then we can ask for it in `define` function. Usually in modules we want to return an object, e.g., in templates we return string and in views we return Backbone View class.
 
-Try launching the examples. Visually there shouldn't be any changes. If you open Network tab in Developers Tool, you can see the difference in how files are loaded.
+Try launching the example under `amd/index.html` folder. Visually there shouldn't be any changes. If you open Network tab in Developers Tool, you can see the difference in how files are loaded.
 
 `amd/index.html`: <http://cl.ly/image/2W0I0O1q0V23>
 `refactor/index.html`: <http://cl.ly/image/122X3q1M0P17>
 
 Require.js has a lot of configuration options which are defined through **requirejs.config()** call in the top level HTML page. More information can be found at <http://requirejs.org/docs/api.html#config>.
 
-Let add bust to our example. Bust argument will be appended to the url of each file preventing browser from caching the files. Perfect for development and terrible for production. :-)
+Let's add bust to our example. Bust argument will be appended to the url of each file preventing browser from caching the files. Perfect for development and terrible for production. :-)
 
 Add this to the **apple-app.js** file infront of everything else:
 
@@ -1489,13 +1556,13 @@ Network tab will look like this: <http://cl.ly/image/3W3U3v3D3p1t>. Please notic
 
 ## Require.js for Production
 
-we'll used Node Package Manager (NPM) to install requirejs in your project folder. In your project folder run these commands in a terminal:
+We'll used Node Package Manager (NPM) to install **requirejs** in your project folder. In your project folder run these commands in a terminal:
 
 ```bash
 $ npm install requirejs
 ```
 
-or add `-g ` for global installation:
+Or add `-g ` for global installation:
 
 ```bash
 $ npm install -g requirejs
@@ -1516,12 +1583,11 @@ Create file **app.build.js**:
 })
 ```
 
-Move script files under `js` folder (appDir). Builded files will be places under `build` folder (dir).
+Move the script files under `js` folder (appDir). Builded files will be places under `build` folder (dir).
 
-For more information on build file check out this example: <https://github.com/jrburke/r.js/blob/master/build/example.build.js>.
+For more information on the build file check out this example: <https://github.com/jrburke/r.js/blob/master/build/example.build.js>.
 
-Now everything should be ready for building one giagantic JavaScript file which will have all the dependencies:
-
+Now everything should be ready for building one gigantic JavaScript file which will have all our dependencies/modules:
 
 ```bash
 $ r.js -o app.build.js
@@ -1534,20 +1600,20 @@ $ node_modules/requirejs/bin/r.js -o app.build.js
 
 You should get list of files: <http://cl.ly/image/4123273V1806>.
 
-Open index.html in build folder. The network tab shows much improvment with just one file to load:
+Open **index.html** in build folder. The network tab shows much improvement with just one file to load:
 <http://cl.ly/image/3l423v1C3o3r>.
 
-For more information checkout official documentation: <http://requirejs.org/docs/optimization.html>.
+For more information, checkout official documentation at <http://requirejs.org/docs/optimization.html>.
 
 Example code is available under `r` and `r/build` folders.
 
-For unlified files (decreas file size) we can use [Uglify2](https://github.com/mishoo/UglifyJS2):
+For uglification of JS files (decreases the files sizes) we can use [Uglify2](https://github.com/mishoo/UglifyJS2) module. To install it with NPM use:
 
 ```bash
 $ npm install uglify-js
 ```
 
-then update app.build.js file with `optimize: "uglify2"`:
+Then update app.build.js file with `optimize: "uglify2"` property:
 
 ```javascript
 ({
