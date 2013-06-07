@@ -1,6 +1,9 @@
 # Introduction to Backbone
 
-## Current Class
+## WARNING!
+
+This repo is not supported/update anymore, please refer to the latest and the better version at <https://leanpub.com/rapid-prototyping-with-js/read#intro-to-backbonejs>.
+## Previous Classes
 
 * [General Assembly: Introduction to Backbone](https://generalassemb.ly/education/introduction-to-backbonejs/san-francisco/1369)
 * [Register](http://www.eventbrite.com/event/5775317129/bf96d0a97418613fcbd6ec2ec9a50f0d)
